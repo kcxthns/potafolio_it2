@@ -29,6 +29,19 @@
         <a href="{% url 'entrega-medicamento' id_receta %}">Volver</a>
     </button>
 </div>
-
+{% elif numero_mensaje == 0 %}
+<div class="col-xs-12">
+    <br>
+    <div class="center-xs">
+        <h3>{{ mensaje }}</h3>
+    </div>
+</div>
+{% elif numero_mensaje == 2 %}
+<div class="col-xs-12">
+    <br>
+    <div class="center-xs">
+        <h3>{{ mensaje }}</h3>
+    </div>
+</div>
 {% endif %}
 {% endblock %}
