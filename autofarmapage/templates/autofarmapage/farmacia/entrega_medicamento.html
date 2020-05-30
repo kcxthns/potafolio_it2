@@ -1,6 +1,16 @@
 {% extends 'autofarmapage/farmacia/farmacia_entregas_base.html' %}
 {% load static %}
 
+{% block datos_paciente %}
+{% for receta in receta %}
+<div class="col-xs-12 start-xs separacionInterior">
+    <h4>Paciente</h4>
+    <p>{{ receta.rut_paciente.rut }}-{{ receta.rut_paciente.dv }}</p>
+    <p>{{ receta.rut_paciente.nombres | capfirst }} {{receta.rut_paciente.apellido_paterno | capfirst }} {{receta.rut_paciente.apellido_materno | capfirst }}</p>
+</div>
+{% endfor %}
+{% endblock %}
+
 {% block entrega_medicamento %}
 
 {% if entregadoAnterior == True %}
@@ -39,54 +49,54 @@
             <p>{{ detalle.PRESENTACION_MED }}</p>
         </div>
     </div>
-    <div class="cardListar">
-    <div class="row separacionInterior backgroundStock">
-        <div class="col-xs-3 center-xs">
-            <p class="labelListar">Primera Entrega: </p>
-        </div>
-        <div class="col-xs-3 center-xs">
-            <p class="labelListar">Última Entrega: </p>
-        </div>
-        <div class="col-xs-3 center-xs">
-            <p class="labelListar">Próxima Entrega: </p>
-        </div>
-        <div class="col-xs-1 center-xs">
-            <p class="labelListar">Stock Total: </p>
-        </div>
-        <div class="col-xs-1 center-xs">
-            <p class="labelListar">Caducados: </p>
-        </div>
-        <div class="col-xs-1 center-xs">
-            <p class="labelListar">Stock Disponible: </p>
-        </div>
-    </div>
-    <div class="row backgroundStock">
-        <div class="col-xs-3 center-xs">
-            <p>{{ detalle.PRIMERA_ENTREGA }}</p>
-        </div>
-        <div class="col-xs-3 center-xs">
-            <p>{{ detalle.ULTIMA_ENTREGA }}</p>
-        </div>
-        <div class="col-xs-3 center-xs">
-            <p>{{ detalle.PROX_ENTREGA }}</p>
-        </div>
-        <div class="col-xs-1 center-xs">
-            <p>{{ detalle.TOTAL_STOCK }}</p>
-        </div>
-        <div class="col-xs-1 center-xs">
-            <p>{{ detalle.CANTIDAD_CADUCADO }}</p>
-        </div>
-        <div class="col-xs-1 center-xs">
-            <p>{{ detalle.STOCK_DISPONIBLE }}</p>
-        </div>
-    </div>
-    </div>
     <div class="row separacionInterior">
-        <div class="col-xs-2 center-xs">
+        <div class="col-xs-2 start-xs">
             <p class="labelListar">Posología: </p>
         </div>
         <div class="col-xs-10 start-xs">
             <P>{{ detalle.POSOLOGIA }}</P>
+        </div>
+    </div>
+    <div class="cardListar">
+        <div class="row separacionInterior backgroundStock">
+            <!--<div class="col-xs-3 center-xs">
+                <p class="labelListar">Primera Entrega: </p>
+            </div>-->
+            <div class="col-xs-3 center-xs">
+                <p class="labelListar">Última Entrega: </p>
+            </div>
+            <div class="col-xs-3 center-xs">
+                <p class="labelListar">Próxima Entrega: </p>
+            </div>
+            <div class="col-xs-2 center-xs">
+                <p class="labelListar">Stock Total: </p>
+            </div>
+            <div class="col-xs-2 center-xs">
+                <p class="labelListar">Caducados: </p>
+            </div>
+            <div class="col-xs-2 center-xs">
+                <p class="labelListar">Stock Disponible: </p>
+            </div>
+        </div>
+        <div class="row backgroundStock">
+            <!--<div class="col-xs-3 center-xs">
+               <p>{{ detalle.PRIMERA_ENTREGA }}</p>
+            </div>-->
+            <div class="col-xs-3 center-xs">
+                <p>{{ detalle.ULTIMA_ENTREGA }}</p>
+            </div>
+            <div class="col-xs-3 center-xs">
+                <p>{{ detalle.PROX_ENTREGA }}</p>
+            </div>
+            <div class="col-xs-2 center-xs">
+                <p>{{ detalle.TOTAL_STOCK }}</p>
+            </div>
+            <div class="col-xs-2 center-xs">
+                <p>{{ detalle.CANTIDAD_CADUCADO }}</p>
+            </div>
+            <div class="col-xs-2 center-xs">
+                <p>{{ detalle.STOCK_DISPONIBLE }}</p>
+            </div>
         </div>
     </div>
     <div class="row separacionInterior">
@@ -94,11 +104,13 @@
             <p class="tratamientoPermanente">Tratamiento {{ detalle.TIPO_TRATAMIENTO }}</p>
         </div>
     </div>
-    {% if detalle.PUEDE_ENTREGAR == 0 %}
-    <div class="row">
-        <div class="col-xs-12 center-xs">
-            <p>Entrega de Medicamento</p>
-            <img src="{% static 'imagenes/arrow.svg' %}" alt="Flecha" height="15" width="15">
+    {% if detalle.PUEDE_ENTREGAR == 1 %}
+    <div class="cardListar">
+        <div class="row">
+            <div class="col-xs-12 center-xs backgroundStock">
+                <p>Entrega de Medicamento</p>
+                <img src="{% static 'imagenes/arrow.svg' %}" alt="Flecha" height="15" width="15">
+            </div>
         </div>
     </div>
     {% if detalle.STOCK_DISPONIBLE == 0 %}
@@ -135,12 +147,115 @@
 {% endfor %}
 {% else %}
 {% for detalle in recetaDetalle %}
-    <div>
-        <div>
-            <p>{{detalle.codigo.codigo}}</p>
-            <P>{{ detalle.duracion_tratamiento }} {{ detalle.id_medida_t.nombre_med_tiempo }}</P>
-            <p>{{ detalle.id_tipo_tratamiento.tipo_tratamiento }}</p>
+    <div class="col-xs-12 cardListar">
+        <div class="row">
+            <div class="col-xs-2 start-xs">
+                <p class="labelListar">Código Medicamento:</p>
+            </div>
+            <div class="col-xs-10 start-xs">
+                <p>{{ detalle.CODIGO }}</p>
+            </div>
         </div>
+        <div class="row">
+            <div class="col-xs-2 start-xs">
+                <p class="labelListar">Nombre Medicamento: </p>
+            </div>
+            <div class="col-xs-10 start-xs">
+                <p>{{ detalle.NOMBRE_MEDICAMENTO | upper }}</p>
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-xs-2 start-xs">
+                <p class="labelListar">Descripción Medicamento: </p>
+            </div>
+            <div class="col-xs-10 start-xs">
+                <p>{{ detalle.DESCRIPCION }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-2 start-xs">
+                <p class="labelListar">Formato: </p>
+            </div>
+            <div class="col-xs-10 start-xs">
+                <p>{{ detalle.TIPO_MEDICAMENTO }}</p>
+            </div>
+        </div>
+        <div class="row separacionInterior">
+            <div class="col-xs-2 start-xs">
+                <p class="labelListar">Posología: </p>
+            </div>
+            <div class="col-xs-10 start-xs">
+                <P>{{ detalle.POSOLOGIA }}</P>
+            </div>
+        </div>
+        <div class="cardListar">
+            <div class="row backgroundStock">
+                <div class="col-xs-4 center-xs">
+                    <p class="labelListar">Stock Total: </p>
+                </div>
+                <div class="col-xs-4 center-xs">
+                    <p class="labelListar">Caducados: </p>
+                </div>
+                <div class="col-xs-4 center-xs">
+                    <p class="labelListar">Stock Disponible: </p>
+                </div>
+            </div>
+            <div class="row backgroundStock">
+                <div class="col-xs-4 center-xs">
+                    <p>{{ detalle.STOCK_TOTAL }}</p>
+                </div>
+                <div class="col-xs-4 center-xs">
+                    <p>{{ detalle.CADUCADOS }}</p>
+                </div>
+                <div class="col-xs-4 center-xs">
+                    <p>{{ detalle.STOCK_DISPONIBLE }}</p>
+                </div>
+            </div>
+        </div>
+        {% if detalle.ES_PERMANENTE == 0 %}
+        <div class="row separacionInterior">
+            <div class="col-xs-12 start-xs">
+                <p class="tratamientoPermanente">Duración Tratamiento: {{ detalle.DURACION_TRATAMIENTO }} {{ detalle.NOMBRE_MED_TIEMPO }}</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="row separacionInterior">
+            <div class="col-xs-12 start-xs">
+                <p class="tratamientoPermanente">Tratamiento {{ detalle.TIPO_TRATAMIENTO }}</p>
+            </div>
+        </div>
+        {% endif %}
+        {% if detalle.STOCK_DISPONIBLE == 0 %}
+        <div class="row">
+            <div class="col-xs-12 center-xs">
+                <p class="tratamientoPermanente">No hay Stock Disponible en Bodega</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="cardListar">
+            <div class="row">
+                <div class="col-xs-12 center-xs backgroundStock">
+                    <p>Entrega de Medicamento</p>
+                    <img src="{% static 'imagenes/arrow.svg' %}" alt="Flecha" height="15" width="15">
+                </div>
+            </div>
+        </div>
+        <div class="row" id="formulario_entrega">
+            <div class="col-xs-12 center-xs">
+                <form action="#" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="codigo_medicamento" id="codigo_medicamento"
+                        value="{{ detalle.CODIGO }}">
+                    <input type="hidden" name="id_receta" id="id_receta" 
+                        value="{{ detalle.ID_RECETA }}">
+                    <input type="number" id="cantidad_entrega" name="cantidad_entrega" min="1">
+                    <div class="row center-xs">
+                    <button>ENTREGAR</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
     </div>
 {% endfor %}
 {% endif %}

@@ -492,7 +492,8 @@ def entregasPendientes(request):
     bd = ConexionBD()
     con = bd.conectar()
     cursor = con.cursor()
-    query = ("SELECT rec.id_receta AS id, " 
+    query = ("SELECT * FROM "
+            "(SELECT rec.id_receta AS id, " 
             "rec.fecha_receta AS fecha, " 
             "(SELECT rut||'-'||dv FROM persona pers WHERE pers.rut = rec.rut_medico) AS rut_medico, "
             "(SELECT nombres||' '||apellido_paterno FROM persona pers WHERE pers.rut = rec.rut_medico) AS nombre_medico, "
@@ -512,7 +513,9 @@ def entregasPendientes(request):
             "FROM receta rec INNER JOIN detalle_receta det_rec ON rec.id_receta = det_rec.id_receta "
             "LEFT JOIN entrega_medicamento entr_medi ON rec.id_receta = entr_medi.id_receta "
             "INNER JOIN persona pers on rec.rut_paciente = pers.rut "
-            "WHERE pers.id_centro = :centroSalud"  
+            "WHERE pers.id_centro = :centroSalud "
+            "AND entr_medi.id_receta IS NULL) "
+            "ORDER BY fecha DESC "  
             )
     cursor.execute(query, [centroSalud])
     def fabricaDiccionario(cursor):
@@ -585,12 +588,53 @@ def entregaMedicamento(request, id_receta):
             'entregadoAnterior' : permanenteEntregadoAnterior,
             'receta' : receta,
         }
-    elif medicPermanente == 0:   
-        recetaDetalle = DetalleReceta.objects.filter(id_receta=id_receta).order_by('codigo')
+    elif medicPermanente == 0:
+        bd = ConexionBD()
+        con = bd.conectar()
+        cursor = con.cursor()
+        query = (
+            "SELECT rec.fecha_receta, "
+            "detalle.codigo, "
+            "med.nombre_medicamento, "
+            "med.descripcion, "
+            "tipo_med.nombre_tipo_med AS TIPO_MEDICAMENTO, "
+            "detalle.id_receta, "
+            "detalle.posologia, "
+            "tratamiento.tipo_tratamiento, "
+            "(CASE WHEN upper(tratamiento.tipo_tratamiento) = 'PERMANENTE' THEN 1 ELSE 0 END) AS ES_PERMANENTE, "
+            "detalle.duracion_tratamiento, "
+            "tiempo.nombre_med_tiempo, "
+            "pers.rut ||'-'|| pers.dv AS RUT_PACIENTE, "
+            "pers.nombres || ' ' || pers.apellido_paterno || ' ' || pers.apellido_materno as NOMBRE_PACIENTE, "
+            "NVL(stock.stock, 0) AS STOCK_TOTAL, "
+            "NVL(cadu.cantidad, 0) as CADUCADOS, "
+            "NVL(stock.stock, 0) - NVL(cadu.cantidad, 0) AS STOCK_DISPONIBLE "
+            "FROM detalle_receta detalle INNER JOIN tipo_tratamiento tratamiento ON detalle.id_tipo_tratamiento = tratamiento.id_tipo_tratamiento "
+            "INNER JOIN medida_tiempo tiempo ON detalle.id_medida_t = tiempo.id_medida_t "
+            "INNER JOIN receta rec ON detalle.id_receta = rec.id_receta "
+            "INNER JOIN persona pers ON rec.rut_paciente = pers.rut "
+            "INNER JOIN stock_medicamento stock ON detalle.codigo = stock.codigo AND pers.id_centro = stock.id_centro "
+            "INNER JOIN caducado cadu ON cadu.codigo = detalle.codigo AND cadu.id_centro = pers.id_centro "
+            "INNER JOIN medicamento med ON detalle.codigo = med.codigo "
+            "INNER JOIN tipo_medicamento tipo_med ON tipo_med.id_tipo_med = med.id_tipo_med "
+            "LEFT JOIN entrega_medicamento entr ON detalle.codigo = entr.codigo AND detalle.id_receta = entr.id_receta "
+            "WHERE detalle.id_receta = :id_receta "
+            "AND entr.codigo IS NULL AND entr.id_receta IS NULL "
+            "ORDER BY detalle.codigo ASC"
+        )
+        cursor.execute(query, [id_receta])
+        def fabricaDiccionario(cursor):
+            columnNames = [d[0] for d in cursor.description]
+            def createRow(*args):
+                return dict(zip(columnNames, args))
+            return createRow
+        cursor.rowfactory = fabricaDiccionario(cursor)
+        recetaDetalle = cursor.fetchall()
         permanenteEntregadoAnterior = False
         datos = {
             'recetaDetalle' : recetaDetalle,
             'entregadoAnterior' : permanenteEntregadoAnterior,
+            'receta' : receta,
         }
     if request.method == 'POST':
         cantidadEntrega = request.POST['cantidad_entrega']
@@ -600,11 +644,17 @@ def entregaMedicamento(request, id_receta):
         cursor = con.cursor()
         #existeStock = cursor.var(bool)
         existeStock = cursor.callfunc('pkg_farmacia.fn_stock_suficiente', bool, [codMed, request.user.rut.id_centro.id_centro, cantidadEntrega])
+        print(existeStock)
         if existeStock:
             resultado = cursor.var(int)
             cursor.callproc('pkg_farmacia.sp_entregar_medicamento', [cantidadEntrega, codMed, id_receta, request.user.rut.rut, resultado])
+            print(resultado.getvalue())
             if resultado.getvalue() == 1:
                 return redirect('resultado-entrega', id_receta = id_receta, codigo_med=codMed, cantidad=cantidadEntrega, numMensaje=1)
+            elif resultado.getvalue() == 2:
+                return redirect('resultado-entrega', id_receta = id_receta, codigo_med=0, cantidad=0, numMensaje=2)
+            else:
+                return redirect('resultado-entrega', id_receta = id_receta, codigo_med=0, cantidad=0, numMensaje=0)
     return render(request, 'autofarmapage/farmacia/entrega_medicamento.html', datos)
 
 def entregaResultado(request, id_receta, codigo_med, cantidad, numMensaje):
@@ -620,6 +670,13 @@ def entregaResultado(request, id_receta, codigo_med, cantidad, numMensaje):
             'id_receta' : id_receta,
         }
         return render(request, 'autofarmapage/farmacia/entrega_resultado.html', datos)
+    elif numMensaje == 0:
+        mensaje = 'Se ha producido un error al procesar los datos, por favor intente nuevamente.'
+        datos = {'mensaje' : mensaje, 'numero_mensaje' : numMensaje}
+        return render(request, 'autofarmapage/farmacia/entrega_resultado.html', datos)
+    elif numMensaje == 2:
+        mensaje = 'No hay suficiente Stock disponible en Bodega.'
+        datos = {'mensaje' : mensaje, 'numero_mensaje' : numMensaje}
     return render(request, 'autofarmapage/farmacia/entrega_resultado.html', datos)
 
 #################
