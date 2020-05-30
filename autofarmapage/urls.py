@@ -16,11 +16,16 @@ urlpatterns = [
     path('logout', views.logout),
 
     #urls farmacia
+    path('inicio-farmacia', views.inicioFarmacia, name='inicio-farmacia'),
     path('homefarma', views.homeFarmacia, name='homefarma'),
     path('agregar-medicamento', views.agregarMedicamento, name='agregar-medicamento'),
     path('agregar-componente', views.agregarComponente, name='agregar-componente'),
     path('listar-medicamento', views.listarMedicamento, name='listar-medicamento'),
     path('exito-crear-medicamento', views.guardadoMedicamentoExito, name='exito-crear-medicamento'),
+    path('inicio-entregas', views.inicioEntregas, name='inicio-entregas'),
+    path('entregas-pendientes', views.entregasPendientes, name='entregas-pendientes'),
+    path('entrega-medicamento/<int:id_receta>', views.entregaMedicamento, name='entrega-medicamento'),
+    path('resultado-entrega/<int:id_receta>/<int:codigo_med>/<int:cantidad>/<int:numMensaje>', views.entregaResultado, name='resultado-entrega'),
 
     # urls médico
     path('home_medico', views.home_medico, name='home_medico'),

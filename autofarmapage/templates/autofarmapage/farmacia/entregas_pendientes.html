@@ -1,0 +1,41 @@
+{% extends 'autofarmapage/farmacia/farmacia_entregas_base.html' %}
+{% load static %}
+
+{% block titulo %}
+Farmacia - Prescripciones Pendientes de Entrega
+{% endblock %}
+
+{% block entregas_pendientes %}
+
+<div>
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha Emisión</th>
+                <th>Médico</th>
+                <th>RUT</th>
+                <th>Paciente</th>
+                <th>RUT</th>
+            </tr>
+        </thead>
+        {% if recetasPendientes %}
+        {% for receta in recetasPendientes %}
+        <tr>
+            <td>{{ receta.FECHA }}</td>
+            <td>{{ receta.NOMBRE_MEDICO }}</td>
+            <td>{{ receta.RUT_MEDICO }}</td>
+            <td>{{ receta.NOMBRE_PACIENTE }}</td>
+            <td>{{ receta.RUT_PACIENTE }}</td>
+            <td>
+                <button class="btn-x" type="button">
+                    <a href="{% url 'entrega-medicamento' receta.ID %}"><i class="fa fa-eye fa-lg"></i></a>
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+        {% endif %}
+    </table>
+</div>
+
+
+{% endblock %}

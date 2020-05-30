@@ -1,0 +1,34 @@
+{% extends 'autofarmapage/farmacia/farmacia_entregas_base.html' %}
+{% load static %}
+
+{% block entrega_resultado %}
+{% if numero_mensaje == 1 %}
+<div class="col-xs-12">
+    <div class="center-xs">
+        <p>{{ mensaje }}</p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-6 end-xs">
+        <p>Cantidad a Entregar: </p>
+    </div>
+    <div class="col-xs-6 start-xs">
+        <p>{{ cantidad }}</p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-6 end-xs">
+        <p>Presentación: </p>
+    </div>
+    <div class="col-xs-6 start-xs">
+        <p>{{ medicamento.id_tipo_med.nombre_tipo_med | upper }}</p>
+    </div>
+</div>
+<div class="row">
+    <button type="button">
+        <a href="{% url 'entrega-medicamento' id_receta %}">Volver</a>
+    </button>
+</div>
+
+{% endif %}
+{% endblock %}
