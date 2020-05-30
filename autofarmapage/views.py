@@ -7,7 +7,7 @@ from .models import Region, Comuna, CentroSalud, TipoEmpleado, Persona
 from .connbd import ConexionBD
 import cx_Oracle
 from autofarmapage.forms import EditarForm
-from autofarmapage.models import Caducado, Componente, DetalleReceta, Medicamento, MedidaComponente, MedidaTiempo, Receta, RegistroInformes, StockMedicamento, TipoComponente, TipoMedicamento, TipoTratamiento, TutorPaciente, Usuario
+from autofarmapage.models import Caducado, Componente, DetalleReceta, EntregaMedicamento, Medicamento, MedidaComponente, MedidaTiempo, Receta, RegistroInformes, StockMedicamento, TipoComponente, TipoMedicamento, TipoTratamiento, TutorPaciente, Usuario
 from django.contrib import messages
 from autofarmapage.managers import UserManager
 from django.core.mail import send_mail
@@ -39,7 +39,7 @@ def index(request):
                 return redirect('homeadmi')
             elif user.id_tipo_empleado == TipoEmpleado.objects.filter(id_tipo_empleado='2').get():
                 # página del colaborador de farmacia
-                return redirect('homefarma')
+                return redirect('inicio-farmacia')
             elif user.id_tipo_empleado == TipoEmpleado.objects.filter(id_tipo_empleado='1').get():
                 # página del médico
                 return redirect('home_medico')
@@ -293,7 +293,7 @@ def logout(request):
 def homeFarmacia(request):
     # establece el codigo de medicamento, que se guarda en la sesión del usuario
     request.session['codigo_medicamento'] = 0
-    return render(request, 'autofarmapage/homefarma.html', {})
+    return render(request, 'autofarmapage/farmacia/inicio_bodega.html', {})
 
 #Vista Agregar Medicamento Colaborador Farmacia
 def agregarMedicamento(request):
@@ -475,6 +475,152 @@ def listarMedicamento(request):
         datos['parametros'] = parametros
 
     return render(request, 'autofarmapage/listar-medicamento.html', datos)
+
+#################################
+# VISTA ENTREGA DE MEDICAMENTOS #
+#################################
+
+def inicioFarmacia(request):
+    return render(request, 'autofarmapage/farmacia/inicio_farmacia.html', {})
+
+def inicioEntregas(request):
+    return render(request, 'autofarmapage/farmacia/inicio_entregas.html', {})
+
+def entregasPendientes(request):
+    centroSalud = request.user.rut.id_centro.id_centro
+    print(centroSalud)
+    bd = ConexionBD()
+    con = bd.conectar()
+    cursor = con.cursor()
+    query = ("SELECT rec.id_receta AS id, " 
+            "rec.fecha_receta AS fecha, " 
+            "(SELECT rut||'-'||dv FROM persona pers WHERE pers.rut = rec.rut_medico) AS rut_medico, "
+            "(SELECT nombres||' '||apellido_paterno FROM persona pers WHERE pers.rut = rec.rut_medico) AS nombre_medico, "
+            "(SELECT rut||'-'||dv FROM persona pers WHERE pers.rut = rec.rut_paciente) AS rut_paciente, "
+            "(SELECT nombres||' '||apellido_paterno FROM persona pers WHERE pers.rut = rec.rut_paciente) AS nombre_paciente "
+            "FROM receta rec INNER JOIN detalle_receta det_rec ON rec.id_receta = det_rec.id_receta "
+            "INNER JOIN entrega_medicamento entr_medi ON rec.id_receta = entr_medi.id_receta "
+            "INNER JOIN persona pers on rec.rut_paciente = pers.rut "
+            "WHERE det_rec.id_tipo_tratamiento = 1 AND pers.id_centro = :centroSalud "
+            "UNION "
+            "SELECT rec.id_receta, " 
+            "rec.fecha_receta, "
+            "(SELECT rut||'-'||dv FROM persona pers WHERE pers.rut = rec.rut_medico), "
+            "(SELECT nombres||' '||apellido_paterno FROM persona pers WHERE pers.rut = rec.rut_medico), "
+            "(SELECT rut||'-'||dv FROM persona pers WHERE pers.rut = rec.rut_paciente), "
+            "(SELECT nombres||' '||apellido_paterno FROM persona pers WHERE pers.rut = rec.rut_paciente) "
+            "FROM receta rec INNER JOIN detalle_receta det_rec ON rec.id_receta = det_rec.id_receta "
+            "LEFT JOIN entrega_medicamento entr_medi ON rec.id_receta = entr_medi.id_receta "
+            "INNER JOIN persona pers on rec.rut_paciente = pers.rut "
+            "WHERE pers.id_centro = :centroSalud"  
+            )
+    cursor.execute(query, [centroSalud])
+    def fabricaDiccionario(cursor):
+        columnNames = [d[0] for d in cursor.description]
+        def createRow(*args):
+            return dict(zip(columnNames, args))
+        return createRow
+    cursor.rowfactory = fabricaDiccionario(cursor)
+    filas = cursor.fetchall()
+    datos = {
+        'recetasPendientes' : filas,
+    }
+    #for row in cursor.execute(query):
+        #print(row)
+    return render(request, 'autofarmapage/farmacia/entregas_pendientes.html', datos)
+
+def entregaMedicamento(request, id_receta):
+    receta = Receta.objects.filter(id_receta=id_receta)
+    datos = {}
+    permanenteEntregadoAnterior = None
+    bd = ConexionBD()
+    con = bd.conectar()
+    cursor = con.cursor()
+    medicPermanente = cursor.callfunc("pkg_farmacia.fn_permanente_entrega", int, [id_receta])
+    print(medicPermanente)
+    if medicPermanente == 1:
+        bd = ConexionBD()
+        con = bd.conectar()
+        cursor = con.cursor()
+        query = ("SELECT med.nombre_medicamento AS NOMBRE_MEDICAMENTO, "
+                "entr.codigo AS CODIGO_MED, "
+                "med.descripcion AS DESCRIPCION_MED, "
+                "det.dosis_diaria, "
+                "tipo_med.nombre_tipo_med AS PRESENTACION_MED, "
+                "MAX(entr.fecha_entrega) AS ULTIMA_ENTREGA, "
+                "MIN(entr.fecha_entrega) AS PRIMERA_ENTREGA, "
+                "det.posologia AS POSOLOGIA, "
+                "tipo_trat.tipo_tratamiento AS TIPO_TRATAMIENTO, "
+                "NVL(st.stock, 0) AS TOTAL_STOCK, "
+                "NVL(cadu.cantidad, 0) AS CANTIDAD_CADUCADO, "
+                "NVL(st.stock, 0) - NVL(cadu.cantidad, 0) AS STOCK_DISPONIBLE, "
+                "MAX(entr.fecha_entrega) + 30 AS PROX_ENTREGA, "
+                "(CASE WHEN MAX(entr.fecha_entrega) + 30 >= sysdate then 0 ELSE 1 END) AS PUEDE_ENTREGAR "
+                "FROM detalle_receta det "
+                "INNER JOIN entrega_medicamento entr ON det.id_receta = entr.id_receta "
+                "AND det.codigo = entr.codigo "
+                "INNER JOIN medicamento med ON med.codigo = entr.codigo "
+                "INNER JOIN tipo_medicamento tipo_med ON tipo_med.id_tipo_med = med.id_tipo_med "
+                "INNER JOIN tipo_tratamiento tipo_trat ON tipo_trat.id_tipo_tratamiento = det.id_tipo_tratamiento "
+                "INNER JOIN receta rece ON rece.id_receta = entr.id_receta "
+                "INNER JOIN persona pers ON pers.rut = rece.rut_paciente "
+                "INNER JOIN stock_medicamento st ON st.codigo = entr.codigo AND st.id_centro = pers.id_centro "
+                "INNER JOIN caducado cadu ON cadu.codigo = entr.codigo AND cadu.id_centro = pers.id_centro "
+                "WHERE det.id_receta = :id_receta "
+                "GROUP BY entr.codigo, med.nombre_medicamento, det.dosis_diaria, tipo_med.nombre_tipo_med, det.posologia, "
+                "med.descripcion, tipo_trat.tipo_tratamiento, NVL(st.stock, 0), NVL(cadu.cantidad, 0), "
+                "NVL(st.stock, 0) - NVL(cadu.cantidad, 0) "
+                "ORDER BY MAX(entr.fecha_entrega)")
+        cursor.execute(query, [id_receta])
+        def fabricaDiccionario(cursor):
+            columnNames = [d[0] for d in cursor.description]
+            def createRow(*args):
+                return dict(zip(columnNames, args))
+            return createRow
+        cursor.rowfactory = fabricaDiccionario(cursor)
+        recetaDetalle = cursor.fetchall()  
+        permanenteEntregadoAnterior = True
+        datos = {
+            'recetaDetalle' : recetaDetalle,
+            'entregadoAnterior' : permanenteEntregadoAnterior,
+            'receta' : receta,
+        }
+    elif medicPermanente == 0:   
+        recetaDetalle = DetalleReceta.objects.filter(id_receta=id_receta).order_by('codigo')
+        permanenteEntregadoAnterior = False
+        datos = {
+            'recetaDetalle' : recetaDetalle,
+            'entregadoAnterior' : permanenteEntregadoAnterior,
+        }
+    if request.method == 'POST':
+        cantidadEntrega = request.POST['cantidad_entrega']
+        codMed = request.POST['codigo_medicamento']
+        bd = ConexionBD()
+        con = bd.conectar()
+        cursor = con.cursor()
+        #existeStock = cursor.var(bool)
+        existeStock = cursor.callfunc('pkg_farmacia.fn_stock_suficiente', bool, [codMed, request.user.rut.id_centro.id_centro, cantidadEntrega])
+        if existeStock:
+            resultado = cursor.var(int)
+            cursor.callproc('pkg_farmacia.sp_entregar_medicamento', [cantidadEntrega, codMed, id_receta, request.user.rut.rut, resultado])
+            if resultado.getvalue() == 1:
+                return redirect('resultado-entrega', id_receta = id_receta, codigo_med=codMed, cantidad=cantidadEntrega, numMensaje=1)
+    return render(request, 'autofarmapage/farmacia/entrega_medicamento.html', datos)
+
+def entregaResultado(request, id_receta, codigo_med, cantidad, numMensaje):
+    datos = {}
+    if numMensaje == 1:
+        medicamento = Medicamento.objects.get(codigo=codigo_med)
+        mensaje = 'La entrega del Medicamento ' + medicamento.nombre_medicamento + ' ha sido registrada.'
+        datos = {
+            'numero_mensaje' : numMensaje,
+            'mensaje' : mensaje,
+            'cantidad' : cantidad,
+            'medicamento' : medicamento,
+            'id_receta' : id_receta,
+        }
+        return render(request, 'autofarmapage/farmacia/entrega_resultado.html', datos)
+    return render(request, 'autofarmapage/farmacia/entrega_resultado.html', datos)
 
 #################
 # VISTAS MÉDICO #

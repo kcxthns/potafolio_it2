@@ -1,0 +1,22 @@
+{% extends 'autofarmapage/farmacia/farmacia_inicio_base.html' %}
+{% load static %}
+
+{% block titulo %}
+Farmacia
+{% endblock %}
+
+{% block inicio_menu %}
+<div class="col-xs-12 col-lg-6 center-lg">                              
+    <div class="button_usuario">
+        <a href="{% url 'inicio-entregas' %}"><img src="{% static 'imagenes/icono_agregar_medicamento.png' %}" alt="Seccion_Entregas"  height="100" width="100"></a>
+        <h4>Entrega Medicamentos</h4>
+    </div>                                     
+</div>
+
+<div class="col-xs-12 col-lg-6 center-lg">    
+    <div class="button_listarusuarios">
+        <a href="{% url 'homefarma' %}"><img src="{% static 'imagenes/icono_listar_medicamento.png' %}" alt="Seccion_Bodega" height="100" width="100"></a>
+         <h4>Gestón Bodega Farmacia</h4>
+    </div>                      
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends 'autofarmapage/farmacia/farmacia_entregas_base.html' %}
+{% load static %}
+
+{% block entrega_medicamento %}
+
+{% if entregadoAnterior == True %}
+{% for detalle in recetaDetalle %}
+
+<div class="col-xs-12 cardListar" id="{{ detalle.CODIGO_MED }}">
+    <div class="row">
+        <div class="col-xs-2 start-xs">
+            <p class="labelListar">Código Medicamento:</p>
+        </div>
+        <div class="col-xs-10 start-xs">
+            <p>{{ detalle.CODIGO_MED }}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-2 start-xs">
+            <p class="labelListar">Nombre Medicamento: </p>
+        </div>
+        <div class="col-xs-10 start-xs">
+            <p>{{ detalle.NOMBRE_MEDICAMENTO | upper }}</p>
+        </div>
+    </div>
+    <div class="row ">
+        <div class="col-xs-2 start-xs">
+            <p class="labelListar">Descripción Medicamento: </p>
+        </div>
+        <div class="col-xs-10 start-xs">
+            <p>{{ detalle.DESCRIPCION_MED }}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-2 start-xs">
+            <p class="labelListar">Formato: </p>
+        </div>
+        <div class="col-xs-10 start-xs">
+            <p>{{ detalle.PRESENTACION_MED }}</p>
+        </div>
+    </div>
+    <div class="cardListar">
+    <div class="row separacionInterior backgroundStock">
+        <div class="col-xs-3 center-xs">
+            <p class="labelListar">Primera Entrega: </p>
+        </div>
+        <div class="col-xs-3 center-xs">
+            <p class="labelListar">Última Entrega: </p>
+        </div>
+        <div class="col-xs-3 center-xs">
+            <p class="labelListar">Próxima Entrega: </p>
+        </div>
+        <div class="col-xs-1 center-xs">
+            <p class="labelListar">Stock Total: </p>
+        </div>
+        <div class="col-xs-1 center-xs">
+            <p class="labelListar">Caducados: </p>
+        </div>
+        <div class="col-xs-1 center-xs">
+            <p class="labelListar">Stock Disponible: </p>
+        </div>
+    </div>
+    <div class="row backgroundStock">
+        <div class="col-xs-3 center-xs">
+            <p>{{ detalle.PRIMERA_ENTREGA }}</p>
+        </div>
+        <div class="col-xs-3 center-xs">
+            <p>{{ detalle.ULTIMA_ENTREGA }}</p>
+        </div>
+        <div class="col-xs-3 center-xs">
+            <p>{{ detalle.PROX_ENTREGA }}</p>
+        </div>
+        <div class="col-xs-1 center-xs">
+            <p>{{ detalle.TOTAL_STOCK }}</p>
+        </div>
+        <div class="col-xs-1 center-xs">
+            <p>{{ detalle.CANTIDAD_CADUCADO }}</p>
+        </div>
+        <div class="col-xs-1 center-xs">
+            <p>{{ detalle.STOCK_DISPONIBLE }}</p>
+        </div>
+    </div>
+    </div>
+    <div class="row separacionInterior">
+        <div class="col-xs-2 center-xs">
+            <p class="labelListar">Posología: </p>
+        </div>
+        <div class="col-xs-10 start-xs">
+            <P>{{ detalle.POSOLOGIA }}</P>
+        </div>
+    </div>
+    <div class="row separacionInterior">
+        <div class="col-xs-2 start-xs">
+            <p class="tratamientoPermanente">Tratamiento {{ detalle.TIPO_TRATAMIENTO }}</p>
+        </div>
+    </div>
+    {% if detalle.PUEDE_ENTREGAR == 0 %}
+    <div class="row">
+        <div class="col-xs-12 center-xs">
+            <p>Entrega de Medicamento</p>
+            <img src="{% static 'imagenes/arrow.svg' %}" alt="Flecha" height="15" width="15">
+        </div>
+    </div>
+    {% if detalle.STOCK_DISPONIBLE == 0 %}
+    <div class="row">
+        <div class="col-xs-12 center-xs">
+            <p class="tratamientoPermanente">No hay Stock Disponible en Bodega</p>
+        </div>
+    </div>
+    {% else %}
+    <div class="row" id="formulario_entrega">
+        <div class="col-xs-12 center-xs">
+            <form action="#" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="codigo_medicamento" id="codigo_medicamento"
+                value="{{ detalle.CODIGO_MED }}">
+                <input type="hidden" name="id_receta" id="id_receta" 
+                value="{{ receta.id_receta }}">
+                <input type="number" id="cantidad_entrega" name="cantidad_entrega" min="1">
+                <div class="row center-xs">
+                    <button>ENTREGAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="row">
+        <div class="col-xs-12 center-xs">
+            <p class="tratamientoPermanente">Este medicamento aún no debe ser entregado al paciente</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
+{% else %}
+{% for detalle in recetaDetalle %}
+    <div>
+        <div>
+            <p>{{detalle.codigo.codigo}}</p>
+            <P>{{ detalle.duracion_tratamiento }} {{ detalle.id_medida_t.nombre_med_tiempo }}</P>
+            <p>{{ detalle.id_tipo_tratamiento.tipo_tratamiento }}</p>
+        </div>
+    </div>
+{% endfor %}
+{% endif %}
+{% endblock %}
