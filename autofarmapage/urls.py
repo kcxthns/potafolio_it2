@@ -2,13 +2,13 @@ from django.urls import path, reverse_lazy, include
 from . import views
 from django.contrib.auth import views as auth_views
 #rest_framework
-from rest_framework import views
+#from rest_framework import views
 from .views import RecetaViewSet
 from rest_framework import routers
 
 router = routers.DefaultRouter()
 router.register('receta', RecetaViewSet)
-from rest_framework.authtoken import views
+#from rest_framework.authtoken import views
 
 app_name = 'autofarmapage'
 
@@ -76,7 +76,7 @@ urlpatterns = [
     #rest_framework
 
     path('api/', include(router.urls), name='api'),
-    path('api-token-auth/', views.obtain_auth_token, name='api-token-auth'),
+    #path('api-token-auth/', views.obtain_auth_token, name='api-token-auth'),
 
     
     
