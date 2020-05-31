@@ -18,15 +18,17 @@ from datetime import datetime
 # Create your views here.
 
 # Vista del login
+
+
 def index(request):
     if request.method == 'POST':
         form = LoginForm(data=request.POST)
         # datos para autenticar al usuario
         username = request.POST['rut']
         username = username.replace('.', '')
-        username = username.replace('-','')
+        username = username.replace('-', '')
         dv = username[-1]
-        username = username[0 : len(username) - 1]
+        username = username[0: len(username) - 1]
         print(dv)
         password = request.POST['password']
         # se autentica el usuario
@@ -49,10 +51,14 @@ def index(request):
     return render(request, 'autofarmapage/index.html', {})
 
 # Vista del Home del Administrador
+
+
 def homeadmi(request):
     return render(request, 'autofarmapage/homeadmi.html', {})
 
 # Vista de Agregar Usuarios del Administrador
+
+
 def agregarusuario(request):
     # Querys para poblar los select del formulario de creación de persona
     #regiones = Region.objects.all()
@@ -69,11 +75,11 @@ def agregarusuario(request):
     if request.method == 'POST':
         rut = request.POST['rut']
         #dv = request.POST['dv']
-        #Formatea el RUT quitando puntos, guión y digito verificador
+        # Formatea el RUT quitando puntos, guión y digito verificador
         rut = rut.replace('.', '')
         rut = rut.replace('-', '')
         dv = rut[-1]
-        rut = rut[0 : len(rut) - 1]
+        rut = rut[0: len(rut) - 1]
         nombres = request.POST['nombres']
         app_paterno = request.POST['apellido_paterno']
         app_materno = request.POST['apellido_materno']
@@ -94,29 +100,29 @@ def agregarusuario(request):
                         rut, dv, nombres, app_paterno, app_materno, telefono, email, direccion, comuna, centro_s, rut_tutor, realizado])
 
         if int(realizado.getvalue()) == 1:
-            #Crea el usuario
+            # Crea el usuario
             usuario = Usuario.objects.create_user(rut, id_tipo_empleado)
-            #Inserta el rut en la tabla de medicos o de colaboradores de farmacia
+            # Inserta el rut en la tabla de medicos o de colaboradores de farmacia
             if id_tipo_empleado == 1:
-                #Inserta RUT en la tabla Medico
+                # Inserta RUT en la tabla Medico
                 cursor.callproc(
                     'pkg_crear_usuario.sp_ingresar_medico', [rut])
             if id_tipo_empleado == 2:
-                #Inserta RUT en la tabla Colaborador_Farmacia
+                # Inserta RUT en la tabla Colaborador_Farmacia
                 cursor.callproc(
                     'pkg_crear_usuario.sp_ingresar_col_farmacia', [rut])
-            #Mensaje que contiene el email
+            # Mensaje que contiene el email
             mensaje_email = 'Tu usuario es ' + \
                 usuario.rut.rut + ' .Tu contraseña es ' + rut[0:4]
-            #Envío de mail con el usuario y la contraseña
+            # Envío de mail con el usuario y la contraseña
             send_mail(
                 'Bienvenido a Autofarma.',
                 mensaje_email,
                 'torpedo.page@gmail.com',
                 [email],
                 fail_silently=False
-                )
-            #Redirige a mensaje de Usuario creado exitosamente
+            )
+            # Redirige a mensaje de Usuario creado exitosamente
             return redirect('exito-crear-usuario')
         elif int(realizado.getvalue()) == 0:
             # mesaje error
@@ -124,25 +130,33 @@ def agregarusuario(request):
                 request, 'Se ha producido un problema y los datos no han sido almacenados. Por Favor intente nuevamente.')
     return render(request, 'autofarmapage/agregar-usuario.html', {'regiones': regiones, 'ciudades': ciudades, 'centro_salud': centro_salud, 'tipo_empleado': tipo_empleado})
 
-#Vista de Mensaje de Usuario Creado Exitosamente (Administrador-Médico)
+# Vista de Mensaje de Usuario Creado Exitosamente (Administrador-Médico)
+
+
 def guardadoUsuarioExito(request):
     return render(request, 'autofarmapage/exito-guardar-usuario.html', {})
 
-#Vista de Mensaje de Tutor Creado Exitosamente (Administrador-Médico)
+# Vista de Mensaje de Tutor Creado Exitosamente (Administrador-Médico)
+
+
 def guardadoTutorExito(request):
     return render(request, 'autofarmapage/exito-guardar-tutor.html', {})
 
-#Vista de Listar Usuarios (Administrador)
+# Vista de Listar Usuarios (Administrador)
+
+
 def listarusuario(request):
-    #Obtiene las personas de la base de datos que pertenecen al centro de salud del Administrador
-    person = Persona.objects.filter(id_centro=request.user.rut.id_centro).order_by('rut')
-    #Búsqueda del Usuario por RUT
+    # Obtiene las personas de la base de datos que pertenecen al centro de salud del Administrador
+    person = Persona.objects.filter(
+        id_centro=request.user.rut.id_centro).order_by('rut')
+    # Búsqueda del Usuario por RUT
     if request.method == 'GET':
         criterio_busqueda = request.GET.get('q')
         submitBtn = request.GET.get('submit')
         if criterio_busqueda is not None:
-            person = Persona.objects.filter(id_centro=request.user.rut.id_centro).filter(rut=criterio_busqueda)
-            #Pagina los resultados de la búsqueda
+            person = Persona.objects.filter(
+                id_centro=request.user.rut.id_centro).filter(rut=criterio_busqueda)
+            # Pagina los resultados de la búsqueda
             paginador = Paginator(person, 20)
             pagina = request.GET.get('page')
             person = paginador.get_page(pagina)
@@ -154,21 +168,21 @@ def listarusuario(request):
                 del parametros['page']
             data5['parametros'] = parametros
             return render(request, 'autofarmapage/listar-usuario.html', data5)
-    #Agrega un tutor al Usuario seleccionado
+    # Agrega un tutor al Usuario seleccionado
     if request.method == 'POST':
         rut_tutor = request.POST['rutTutor']
         rut_paciente = request.POST['rutPaciente']
-        #Conexión a la bd
+        # Conexión a la bd
         bd = ConexionBD()
         con = bd.conectar()
         cursor = con.cursor()
         realizado = cursor.var(int)
-        #Procedimiento de creación del tutor
+        # Procedimiento de creación del tutor
         cursor.callproc('pkg_crear_usuario.sp_crear_tutor', [
                         rut_tutor, rut_paciente, realizado])
         if realizado.getvalue() == 1:
             return redirect('exito-guardar-tutor')
-    #Pagina el listado de Usuarios
+    # Pagina el listado de Usuarios
     paginador = Paginator(person, 20)
     pagina = request.GET.get('page')
     person = paginador.get_page(pagina)
@@ -177,28 +191,34 @@ def listarusuario(request):
     }
     return render(request, 'autofarmapage/listar-usuario.html', data5)
 
-#Vista de la Lista de Informes
+# Vista de la Lista de Informes
+
+
 def listarinforme(request):
-    #Obtiene todos los informes
+    # Obtiene todos los informes
     informe = RegistroInformes.objects.all()
     datainfo = {
         'informe': informe
     }
     return render(request, 'autofarmapage/listar-informe.html', datainfo)
 
-#Vista de Modificar Usuario Exitosamente (Administrador)
+# Vista de Modificar Usuario Exitosamente (Administrador)
+
+
 def modificarUsuarioExito(request):
     return render(request, 'autofarmapage/exito-modificar-usuario.html', {})
 
-#Vista Editar Persona (Administrador)
+# Vista Editar Persona (Administrador)
+
+
 def editarPersona(request, rut):
-    #Obtiene la Persona desde la base de datos
+    # Obtiene la Persona desde la base de datos
     persona = Persona.objects.filter(rut=rut)
-    #Obtiene a todos los tutores (RUT) desde la base de datos
+    # Obtiene a todos los tutores (RUT) desde la base de datos
     tutor = TutorPaciente.objects.all()
-    #Obtiene todas las ciudades desde la bd
+    # Obtiene todas las ciudades desde la bd
     ciudades = Comuna.objects.all().order_by('nombre_comuna')
-    #Obtiene todos los centros de salud desde la bd
+    # Obtiene todos los centros de salud desde la bd
     centro_salud = CentroSalud.objects.all().order_by('id_comuna')
     dataPerson = {
         'persona': persona,
@@ -206,7 +226,7 @@ def editarPersona(request, rut):
         'ciudades': ciudades,
         'centro_salud': centro_salud
     }
-    #Modifica la Persona en la bd
+    # Modifica la Persona en la bd
     if request.method == 'POST':
         rut = request.POST['rut']
         nombres = request.POST['nombres']
@@ -234,7 +254,7 @@ def editarPersona(request, rut):
                     # ejecutar el procedimiento
                     realizado = cursor.var(int)
                     cursor.callproc('pkg_administrar_usuario.sp_editar_persona', [
-                                    rut, nombres, app_paterno, app_materno, telefono, email, direccion, comuna, centro_s,realizado])
+                                    rut, nombres, app_paterno, app_materno, telefono, email, direccion, comuna, centro_s, realizado])
 
                     if int(realizado.getvalue()) == 1:
                         return redirect('exito-modificar-usuario')
@@ -248,11 +268,13 @@ def editarPersona(request, rut):
 
     return render(request, 'autofarmapage/editaruser.html', dataPerson)
 
-#Vista para deshabilitar o habilitar al usuario (Administrador)
+# Vista para deshabilitar o habilitar al usuario (Administrador)
+
+
 def deshabilitarUsuario(request, rut):
-    #Obtiene a la persona a habilitar/deshabilitar
+    # Obtiene a la persona a habilitar/deshabilitar
     persona = Persona.objects.filter(rut=rut)
-    #Form para habilitar/deshabilitar a la persona
+    # Form para habilitar/deshabilitar a la persona
     if request.method == 'POST':
         rut_usuario = request.POST['rutUsuario']
         opcion = int(request.POST['opcion'])
@@ -276,11 +298,15 @@ def deshabilitarUsuario(request, rut):
     }
     return render(request, 'autofarmapage/deshabilitarpage.html', data)
 
-#Vista de Reset de la contraseña (reset completado)
+# Vista de Reset de la contraseña (reset completado)
+
+
 def passwordResetCompleto(request):
     return render(request, 'registration/password_reset_complete_custom.html', {})
 
-#Logout 
+# Logout
+
+
 def logout(request):
     do_logout(request)
     return redirect('/')
@@ -289,19 +315,23 @@ def logout(request):
 # VISTA GESTIÓN FARMACIA #
 ##########################
 
-#Home de Colaborador de Farmacia
+# Home de Colaborador de Farmacia
+
+
 def homeFarmacia(request):
     # establece el codigo de medicamento, que se guarda en la sesión del usuario
     request.session['codigo_medicamento'] = 0
     return render(request, 'autofarmapage/farmacia/inicio_bodega.html', {})
 
-#Vista Agregar Medicamento Colaborador Farmacia
+# Vista Agregar Medicamento Colaborador Farmacia
+
+
 def agregarMedicamento(request):
-    #Obtiene todos los tipos de medicamento desde la bd
+    # Obtiene todos los tipos de medicamento desde la bd
     tipoMedicamento = TipoMedicamento.objects.all()
-    #Resetea el código de medicamento a cero si ya ha sido usado durante la sesión del usuario
+    # Resetea el código de medicamento a cero si ya ha sido usado durante la sesión del usuario
     request.session['codigo_medicamento'] = 0
-    #Form de Registro en tabla Medicamento
+    # Form de Registro en tabla Medicamento
     if request.method == 'POST':
         nombreMedi = request.POST['nombre_medicamento']
         descripcionMedi = request.POST['descripcion']
@@ -317,7 +347,7 @@ def agregarMedicamento(request):
                         nombreMedi, descripcionMedi, fabricanteMedi, idTipoMedi, realizado, codigoMedi])
         if realizado.getvalue() == 1:
             print(codigoMedi.getvalue())
-            #Guarda el valor de el código de medicamento generado en el PL/SQL en la sesión del usuario, este se guarda en la bd encriptado (temporalmente)
+            # Guarda el valor de el código de medicamento generado en el PL/SQL en la sesión del usuario, este se guarda en la bd encriptado (temporalmente)
             request.session['codigo_medicamento'] = codigoMedi.getvalue()
             new_stock = cursor.var(int)
             cursor.callproc('pkg_administrar_medicamento.sp_crear_stock_medi', [
@@ -328,24 +358,26 @@ def agregarMedicamento(request):
                 request, 'Se ha producido un error al guardar los datos, por favor intente nuevamente')
     return render(request, 'autofarmapage/agregar-medicamento.html', {'tipoMedicamento': tipoMedicamento})
 
-#Vista para Agregar Componentes (Luego de crear Medicamento)
+# Vista para Agregar Componentes (Luego de crear Medicamento)
+
+
 def agregarComponente(request):
     medidaComponente = MedidaComponente.objects.all()
     tipoComponente = TipoComponente.objects.all()
-    #Obtiene el Medicamento creado a partir del código guardado en sesión
+    # Obtiene el Medicamento creado a partir del código guardado en sesión
     medicamento = Medicamento.objects.get(
         codigo=request.session['codigo_medicamento'])
-    #Obtiene todos los componentes ya almacenados del Medicamento
+    # Obtiene todos los componentes ya almacenados del Medicamento
     componentes = Componente.objects.all().filter(codigo=medicamento.codigo)
-    #Form para agregar o quitar Componente
+    # Form para agregar o quitar Componente
     if request.method == 'POST':
         _id_componente = request.POST.get('id_componente')
-        #Borra el componente si se ha presionado la opción de borrar
+        # Borra el componente si se ha presionado la opción de borrar
         if _id_componente is not None:
             delete_comp = Componente.objects.get(id_componente=_id_componente)
             delete_comp.delete()
         else:
-            #Añade el componente si se ha seleccionado añadir en el formulario
+            # Añade el componente si se ha seleccionado añadir en el formulario
             nombreComp = request.POST['nombre_componente']
             medida = request.POST['medida_componente']
             idMedida = int(request.POST['id_medida_componente'])
@@ -368,11 +400,15 @@ def agregarComponente(request):
     }
     return render(request, 'autofarmapage/agregar-componente.html', datos)
 
-#Vista de Guardado de Medicamento Exitoso
+# Vista de Guardado de Medicamento Exitoso
+
+
 def guardadoMedicamentoExito(request):
     return render(request, 'autofarmapage/exito-guardar-medicamento.html', {})
 
-#Vista de Listar Medicamentos
+# Vista de Listar Medicamentos
+
+
 def listarMedicamento(request):
     medicamentos = Medicamento.objects.all()
     stock = StockMedicamento.objects.filter(
@@ -480,11 +516,14 @@ def listarMedicamento(request):
 # VISTA ENTREGA DE MEDICAMENTOS #
 #################################
 
+
 def inicioFarmacia(request):
     return render(request, 'autofarmapage/farmacia/inicio_farmacia.html', {})
 
+
 def inicioEntregas(request):
     return render(request, 'autofarmapage/farmacia/inicio_entregas.html', {})
+
 
 def entregasPendientes(request):
     centroSalud = request.user.rut.id_centro.id_centro
@@ -492,42 +531,45 @@ def entregasPendientes(request):
     bd = ConexionBD()
     con = bd.conectar()
     cursor = con.cursor()
-    query = ("SELECT rec.id_receta AS id, " 
-            "rec.fecha_receta AS fecha, " 
-            "(SELECT rut||'-'||dv FROM persona pers WHERE pers.rut = rec.rut_medico) AS rut_medico, "
-            "(SELECT nombres||' '||apellido_paterno FROM persona pers WHERE pers.rut = rec.rut_medico) AS nombre_medico, "
-            "(SELECT rut||'-'||dv FROM persona pers WHERE pers.rut = rec.rut_paciente) AS rut_paciente, "
-            "(SELECT nombres||' '||apellido_paterno FROM persona pers WHERE pers.rut = rec.rut_paciente) AS nombre_paciente "
-            "FROM receta rec INNER JOIN detalle_receta det_rec ON rec.id_receta = det_rec.id_receta "
-            "INNER JOIN entrega_medicamento entr_medi ON rec.id_receta = entr_medi.id_receta "
-            "INNER JOIN persona pers on rec.rut_paciente = pers.rut "
-            "WHERE det_rec.id_tipo_tratamiento = 1 AND pers.id_centro = :centroSalud "
-            "UNION "
-            "SELECT rec.id_receta, " 
-            "rec.fecha_receta, "
-            "(SELECT rut||'-'||dv FROM persona pers WHERE pers.rut = rec.rut_medico), "
-            "(SELECT nombres||' '||apellido_paterno FROM persona pers WHERE pers.rut = rec.rut_medico), "
-            "(SELECT rut||'-'||dv FROM persona pers WHERE pers.rut = rec.rut_paciente), "
-            "(SELECT nombres||' '||apellido_paterno FROM persona pers WHERE pers.rut = rec.rut_paciente) "
-            "FROM receta rec INNER JOIN detalle_receta det_rec ON rec.id_receta = det_rec.id_receta "
-            "LEFT JOIN entrega_medicamento entr_medi ON rec.id_receta = entr_medi.id_receta "
-            "INNER JOIN persona pers on rec.rut_paciente = pers.rut "
-            "WHERE pers.id_centro = :centroSalud"  
-            )
+    query = ("SELECT rec.id_receta AS id, "
+             "rec.fecha_receta AS fecha, "
+             "(SELECT rut||'-'||dv FROM persona pers WHERE pers.rut = rec.rut_medico) AS rut_medico, "
+             "(SELECT nombres||' '||apellido_paterno FROM persona pers WHERE pers.rut = rec.rut_medico) AS nombre_medico, "
+             "(SELECT rut||'-'||dv FROM persona pers WHERE pers.rut = rec.rut_paciente) AS rut_paciente, "
+             "(SELECT nombres||' '||apellido_paterno FROM persona pers WHERE pers.rut = rec.rut_paciente) AS nombre_paciente "
+             "FROM receta rec INNER JOIN detalle_receta det_rec ON rec.id_receta = det_rec.id_receta "
+             "INNER JOIN entrega_medicamento entr_medi ON rec.id_receta = entr_medi.id_receta "
+             "INNER JOIN persona pers on rec.rut_paciente = pers.rut "
+             "WHERE det_rec.id_tipo_tratamiento = 1 AND pers.id_centro = :centroSalud "
+             "UNION "
+             "SELECT rec.id_receta, "
+             "rec.fecha_receta, "
+             "(SELECT rut||'-'||dv FROM persona pers WHERE pers.rut = rec.rut_medico), "
+             "(SELECT nombres||' '||apellido_paterno FROM persona pers WHERE pers.rut = rec.rut_medico), "
+             "(SELECT rut||'-'||dv FROM persona pers WHERE pers.rut = rec.rut_paciente), "
+             "(SELECT nombres||' '||apellido_paterno FROM persona pers WHERE pers.rut = rec.rut_paciente) "
+             "FROM receta rec INNER JOIN detalle_receta det_rec ON rec.id_receta = det_rec.id_receta "
+             "LEFT JOIN entrega_medicamento entr_medi ON rec.id_receta = entr_medi.id_receta "
+             "INNER JOIN persona pers on rec.rut_paciente = pers.rut "
+             "WHERE pers.id_centro = :centroSalud"
+             )
     cursor.execute(query, [centroSalud])
+
     def fabricaDiccionario(cursor):
         columnNames = [d[0] for d in cursor.description]
+
         def createRow(*args):
             return dict(zip(columnNames, args))
         return createRow
     cursor.rowfactory = fabricaDiccionario(cursor)
     filas = cursor.fetchall()
     datos = {
-        'recetasPendientes' : filas,
+        'recetasPendientes': filas,
     }
-    #for row in cursor.execute(query):
-        #print(row)
+    # for row in cursor.execute(query):
+    # print(row)
     return render(request, 'autofarmapage/farmacia/entregas_pendientes.html', datos)
+
 
 def entregaMedicamento(request, id_receta):
     receta = Receta.objects.filter(id_receta=id_receta)
@@ -536,61 +578,65 @@ def entregaMedicamento(request, id_receta):
     bd = ConexionBD()
     con = bd.conectar()
     cursor = con.cursor()
-    medicPermanente = cursor.callfunc("pkg_farmacia.fn_permanente_entrega", int, [id_receta])
+    medicPermanente = cursor.callfunc(
+        "pkg_farmacia.fn_permanente_entrega", int, [id_receta])
     print(medicPermanente)
     if medicPermanente == 1:
         bd = ConexionBD()
         con = bd.conectar()
         cursor = con.cursor()
         query = ("SELECT med.nombre_medicamento AS NOMBRE_MEDICAMENTO, "
-                "entr.codigo AS CODIGO_MED, "
-                "med.descripcion AS DESCRIPCION_MED, "
-                "det.dosis_diaria, "
-                "tipo_med.nombre_tipo_med AS PRESENTACION_MED, "
-                "MAX(entr.fecha_entrega) AS ULTIMA_ENTREGA, "
-                "MIN(entr.fecha_entrega) AS PRIMERA_ENTREGA, "
-                "det.posologia AS POSOLOGIA, "
-                "tipo_trat.tipo_tratamiento AS TIPO_TRATAMIENTO, "
-                "NVL(st.stock, 0) AS TOTAL_STOCK, "
-                "NVL(cadu.cantidad, 0) AS CANTIDAD_CADUCADO, "
-                "NVL(st.stock, 0) - NVL(cadu.cantidad, 0) AS STOCK_DISPONIBLE, "
-                "MAX(entr.fecha_entrega) + 30 AS PROX_ENTREGA, "
-                "(CASE WHEN MAX(entr.fecha_entrega) + 30 >= sysdate then 0 ELSE 1 END) AS PUEDE_ENTREGAR "
-                "FROM detalle_receta det "
-                "INNER JOIN entrega_medicamento entr ON det.id_receta = entr.id_receta "
-                "AND det.codigo = entr.codigo "
-                "INNER JOIN medicamento med ON med.codigo = entr.codigo "
-                "INNER JOIN tipo_medicamento tipo_med ON tipo_med.id_tipo_med = med.id_tipo_med "
-                "INNER JOIN tipo_tratamiento tipo_trat ON tipo_trat.id_tipo_tratamiento = det.id_tipo_tratamiento "
-                "INNER JOIN receta rece ON rece.id_receta = entr.id_receta "
-                "INNER JOIN persona pers ON pers.rut = rece.rut_paciente "
-                "INNER JOIN stock_medicamento st ON st.codigo = entr.codigo AND st.id_centro = pers.id_centro "
-                "INNER JOIN caducado cadu ON cadu.codigo = entr.codigo AND cadu.id_centro = pers.id_centro "
-                "WHERE det.id_receta = :id_receta "
-                "GROUP BY entr.codigo, med.nombre_medicamento, det.dosis_diaria, tipo_med.nombre_tipo_med, det.posologia, "
-                "med.descripcion, tipo_trat.tipo_tratamiento, NVL(st.stock, 0), NVL(cadu.cantidad, 0), "
-                "NVL(st.stock, 0) - NVL(cadu.cantidad, 0) "
-                "ORDER BY MAX(entr.fecha_entrega)")
+                 "entr.codigo AS CODIGO_MED, "
+                 "med.descripcion AS DESCRIPCION_MED, "
+                 "det.dosis_diaria, "
+                 "tipo_med.nombre_tipo_med AS PRESENTACION_MED, "
+                 "MAX(entr.fecha_entrega) AS ULTIMA_ENTREGA, "
+                 "MIN(entr.fecha_entrega) AS PRIMERA_ENTREGA, "
+                 "det.posologia AS POSOLOGIA, "
+                 "tipo_trat.tipo_tratamiento AS TIPO_TRATAMIENTO, "
+                 "NVL(st.stock, 0) AS TOTAL_STOCK, "
+                 "NVL(cadu.cantidad, 0) AS CANTIDAD_CADUCADO, "
+                 "NVL(st.stock, 0) - NVL(cadu.cantidad, 0) AS STOCK_DISPONIBLE, "
+                 "MAX(entr.fecha_entrega) + 30 AS PROX_ENTREGA, "
+                 "(CASE WHEN MAX(entr.fecha_entrega) + 30 >= sysdate then 0 ELSE 1 END) AS PUEDE_ENTREGAR "
+                 "FROM detalle_receta det "
+                 "INNER JOIN entrega_medicamento entr ON det.id_receta = entr.id_receta "
+                 "AND det.codigo = entr.codigo "
+                 "INNER JOIN medicamento med ON med.codigo = entr.codigo "
+                 "INNER JOIN tipo_medicamento tipo_med ON tipo_med.id_tipo_med = med.id_tipo_med "
+                 "INNER JOIN tipo_tratamiento tipo_trat ON tipo_trat.id_tipo_tratamiento = det.id_tipo_tratamiento "
+                 "INNER JOIN receta rece ON rece.id_receta = entr.id_receta "
+                 "INNER JOIN persona pers ON pers.rut = rece.rut_paciente "
+                 "INNER JOIN stock_medicamento st ON st.codigo = entr.codigo AND st.id_centro = pers.id_centro "
+                 "INNER JOIN caducado cadu ON cadu.codigo = entr.codigo AND cadu.id_centro = pers.id_centro "
+                 "WHERE det.id_receta = :id_receta "
+                 "GROUP BY entr.codigo, med.nombre_medicamento, det.dosis_diaria, tipo_med.nombre_tipo_med, det.posologia, "
+                 "med.descripcion, tipo_trat.tipo_tratamiento, NVL(st.stock, 0), NVL(cadu.cantidad, 0), "
+                 "NVL(st.stock, 0) - NVL(cadu.cantidad, 0) "
+                 "ORDER BY MAX(entr.fecha_entrega)")
         cursor.execute(query, [id_receta])
+
         def fabricaDiccionario(cursor):
             columnNames = [d[0] for d in cursor.description]
+
             def createRow(*args):
                 return dict(zip(columnNames, args))
             return createRow
         cursor.rowfactory = fabricaDiccionario(cursor)
-        recetaDetalle = cursor.fetchall()  
+        recetaDetalle = cursor.fetchall()
         permanenteEntregadoAnterior = True
         datos = {
-            'recetaDetalle' : recetaDetalle,
-            'entregadoAnterior' : permanenteEntregadoAnterior,
-            'receta' : receta,
+            'recetaDetalle': recetaDetalle,
+            'entregadoAnterior': permanenteEntregadoAnterior,
+            'receta': receta,
         }
-    elif medicPermanente == 0:   
-        recetaDetalle = DetalleReceta.objects.filter(id_receta=id_receta).order_by('codigo')
+    elif medicPermanente == 0:
+        recetaDetalle = DetalleReceta.objects.filter(
+            id_receta=id_receta).order_by('codigo')
         permanenteEntregadoAnterior = False
         datos = {
-            'recetaDetalle' : recetaDetalle,
-            'entregadoAnterior' : permanenteEntregadoAnterior,
+            'recetaDetalle': recetaDetalle,
+            'entregadoAnterior': permanenteEntregadoAnterior,
         }
     if request.method == 'POST':
         cantidadEntrega = request.POST['cantidad_entrega']
@@ -599,25 +645,29 @@ def entregaMedicamento(request, id_receta):
         con = bd.conectar()
         cursor = con.cursor()
         #existeStock = cursor.var(bool)
-        existeStock = cursor.callfunc('pkg_farmacia.fn_stock_suficiente', bool, [codMed, request.user.rut.id_centro.id_centro, cantidadEntrega])
+        existeStock = cursor.callfunc('pkg_farmacia.fn_stock_suficiente', bool, [
+                                      codMed, request.user.rut.id_centro.id_centro, cantidadEntrega])
         if existeStock:
             resultado = cursor.var(int)
-            cursor.callproc('pkg_farmacia.sp_entregar_medicamento', [cantidadEntrega, codMed, id_receta, request.user.rut.rut, resultado])
+            cursor.callproc('pkg_farmacia.sp_entregar_medicamento', [
+                            cantidadEntrega, codMed, id_receta, request.user.rut.rut, resultado])
             if resultado.getvalue() == 1:
-                return redirect('resultado-entrega', id_receta = id_receta, codigo_med=codMed, cantidad=cantidadEntrega, numMensaje=1)
+                return redirect('resultado-entrega', id_receta=id_receta, codigo_med=codMed, cantidad=cantidadEntrega, numMensaje=1)
     return render(request, 'autofarmapage/farmacia/entrega_medicamento.html', datos)
+
 
 def entregaResultado(request, id_receta, codigo_med, cantidad, numMensaje):
     datos = {}
     if numMensaje == 1:
         medicamento = Medicamento.objects.get(codigo=codigo_med)
-        mensaje = 'La entrega del Medicamento ' + medicamento.nombre_medicamento + ' ha sido registrada.'
+        mensaje = 'La entrega del Medicamento ' + \
+            medicamento.nombre_medicamento + ' ha sido registrada.'
         datos = {
-            'numero_mensaje' : numMensaje,
-            'mensaje' : mensaje,
-            'cantidad' : cantidad,
-            'medicamento' : medicamento,
-            'id_receta' : id_receta,
+            'numero_mensaje': numMensaje,
+            'mensaje': mensaje,
+            'cantidad': cantidad,
+            'medicamento': medicamento,
+            'id_receta': id_receta,
         }
         return render(request, 'autofarmapage/farmacia/entrega_resultado.html', datos)
     return render(request, 'autofarmapage/farmacia/entrega_resultado.html', datos)
@@ -626,11 +676,15 @@ def entregaResultado(request, id_receta, codigo_med, cantidad, numMensaje):
 # VISTAS MÉDICO #
 #################
 
-#Vista del home de Médico
+# Vista del home de Médico
+
+
 def home_medico(request):
     return render(request, 'autofarmapage/home_medico.html', {})
 
-#Vista de Agregar Paciente (Médico)
+# Vista de Agregar Paciente (Médico)
+
+
 def agregarpaciente(request):
     # Querys para poblar los select del formulario de creacion de persona
     regiones = Region.objects.all()
@@ -642,12 +696,12 @@ def agregarpaciente(request):
         rut = rut.replace('.', '')
         rut = rut.replace('-', '')
         dv = rut[-1]
-        rut = rut[0 : len(rut) - 1]
+        rut = rut[0: len(rut) - 1]
         #dv = request.POST['dv']
         #validador = Validador()
-        #if validador.validarRut(rut, dv) == False:
-            #messages.error(request, "El rut " + rut +
-                           #"- " + dv + " no es válido")
+        # if validador.validarRut(rut, dv) == False:
+        # messages.error(request, "El rut " + rut +
+        # "- " + dv + " no es válido")
         #rut = request.POST['rut']
         nombres = request.POST['nombres']
         app_paterno = request.POST['apellido_paterno']
@@ -677,7 +731,7 @@ def agregarpaciente(request):
             mensaje_email = 'Tu usuario es ' + \
                 rut + ' .Tu contraseña es ' + rut[0:4]
 
-                # envío de mail con el usuario y la contraseña
+            # envío de mail con el usuario y la contraseña
             send_mail(
                 'Bienvenido a Autofarma.',
                 mensaje_email,
@@ -692,7 +746,9 @@ def agregarpaciente(request):
                 request, 'Se ha producido un problema y los datos no han sido almacenados. Por Favor intente nuevamente.')
     return render(request, 'autofarmapage/agregar-paciente.html', {'regiones': regiones, 'ciudades': ciudades, 'centro_salud': centro_salud, })
 
-#Crear Receta Paso 1: Guardado en Tabla Receta
+# Crear Receta Paso 1: Guardado en Tabla Receta
+
+
 def crearreceta(request):
     persona = Persona.objects.all().filter(id_centro=request.user.rut.id_centro)
     rutpat = None
@@ -703,7 +759,7 @@ def crearreceta(request):
             rut = request.GET['rutpaciente']
             for i in persona:
                 if i.rut == rut:
-                    nombrePaciente = i.nombres + " " + i.apellido_paterno
+                    nombrePaciente = i.nombres + " " + i.apellido_paterno + " " + i.apellido_materno
                     rutpat = i.rut
                     messages.success(request, 'Paciente encontrado')
     elif request.method == 'POST':
@@ -726,7 +782,9 @@ def crearreceta(request):
             messages.error(request, 'HA OCURRIDO UN ERROR :(')
     return render(request, 'autofarmapage/crear-receta.html', {'nombrePaciente': nombrePaciente, 'rutpat': rutpat})
 
-#Crear Receta Paso 2: Guardado en Tabla Detalle_Receta
+# Crear Receta Paso 2: Guardado en Tabla Detalle_Receta
+
+
 def crearreceta2(request, id_receta):
     recetapk = Receta.objects.get(id_receta=id_receta)
     medidaTiempo = MedidaTiempo.objects.all()
@@ -737,8 +795,8 @@ def crearreceta2(request, id_receta):
         'recetapk': recetapk,
         'tratamiento': tratamiento,
         'remedios': remedios,
-        'detallereceta':detallereceta,
-        'medidaTiempo' : medidaTiempo
+        'detallereceta': detallereceta,
+        'medidaTiempo': medidaTiempo
     }
     if request.method == 'GET':
         campo = request.GET.get('q')
@@ -750,8 +808,8 @@ def crearreceta2(request, id_receta):
                 'recetapk': recetapk,
                 'tratamiento': tratamiento,
                 'remedios': remedios,
-                'detallereceta':detallereceta,
-                'medidaTiempo' : medidaTiempo
+                'detallereceta': detallereceta,
+                'medidaTiempo': medidaTiempo
             }
             return render(request, 'autofarmapage/crear-receta2.html', data5)
     elif request.method == 'POST':
@@ -771,10 +829,12 @@ def crearreceta2(request, id_receta):
         if realizado.getvalue() == 1:
             messages.success(request, "Medicamento Agregado")
         elif realizado.getvalue() == 0:
-            messages.success(request, "hubo un error :(")
+            messages.success(request, "Complete todos los campos")
     return render(request, 'autofarmapage/crear-receta2.html', data5)
 
-#Vista Registrar Tutor (Se Registra una nueva Persona y Usuario) (Médico)
+# Vista Registrar Tutor (Se Registra una nueva Persona y Usuario) (Médico)
+
+
 def registrartutor(request):
     # Querys para poblar los select del formulario de creacion de persona
     regiones = Region.objects.all()
@@ -783,11 +843,11 @@ def registrartutor(request):
 
     if request.method == 'POST':
         rut = request.POST['rut']
-        #Quita los puntos, guión y el digito verificador
+        # Quita los puntos, guión y el digito verificador
         rut = rut.replace('.', '')
         rut = rut.replace('-', '')
         dv = rut[-1]
-        rut = rut[0 : len(rut) - 1]
+        rut = rut[0: len(rut) - 1]
         nombres = request.POST['nombres']
         app_paterno = request.POST['apellido_paterno']
         app_materno = request.POST['apellido_materno']
@@ -832,7 +892,9 @@ def registrartutor(request):
                 request, 'Se ha producido un problema y los datos no han sido almacenados. Por Favor intente nuevamente.')
     return render(request, 'autofarmapage/registrar-tutor.html', {'regiones': regiones, 'ciudades': ciudades, 'centro_salud': centro_salud, })
 
-#Vista Agregar Tutor (Se agregar el RUT del Tutor a una Persona)
+# Vista Agregar Tutor (Se agregar el RUT del Tutor a una Persona)
+
+
 def agregarTutor(request, rut):
     paciente = Persona.objects.get(rut=rut)
     ruttutor = None
@@ -851,7 +913,8 @@ def agregarTutor(request, rut):
         con = bd.conectar()
         cursor = con.cursor()
         realizado = cursor.var(int)
-        cursor.callproc('pkg_crear_usuario.sp_crear_tutor', [rutdeltutor, paciente.rut, realizado])
+        cursor.callproc('pkg_crear_usuario.sp_crear_tutor', [
+                        rutdeltutor, paciente.rut, realizado])
         print(realizado.getvalue())
         if realizado.getvalue() == 1:
             return redirect('crear-receta')
@@ -860,30 +923,34 @@ def agregarTutor(request, rut):
                 request, 'Ocurrió un error :( - Intente ingresando un rut en el buscador')
     return render(request, 'autofarmapage/agregar-tutor.html', {'paciente': paciente, 'ruttutor': ruttutor})
 
-#Vista Listar Recetas (Médico)
+# Vista Listar Recetas (Médico)
+
+
 def verRecetas(request):
     receta = Receta.objects.all().order_by('fecha_receta')
     data = {
-        'receta':receta,
+        'receta': receta,
     }
     if request.method == 'GET':
         entrada = request.GET.get('q')
         btn = request.GET.get('submit')
         if entrada is not None:
             receta = Receta.objects.filter(rut_paciente=entrada)
-            data={
-                'receta':receta,
+            data = {
+                'receta': receta,
             }
-            return render(request, 'autofarmapage/ver-recetas.html', data)   
-    return render(request, 'autofarmapage/ver-recetas.html', data) 
+            return render(request, 'autofarmapage/ver-recetas.html', data)
+    return render(request, 'autofarmapage/ver-recetas.html', data)
 
-#Vista del Detalle de la Receta (Al seleccionar una de la lista de recetas)
+# Vista del Detalle de la Receta (Al seleccionar una de la lista de recetas)
+
+
 def verReceta2(request, id_receta):
     receta = Receta.objects.get(id_receta=id_receta)
     detallereceta = DetalleReceta.objects.filter(id_receta=id_receta)
     data = {
-        'receta':receta, 
-        'detallereceta':detallereceta
+        'receta': receta,
+        'detallereceta': detallereceta
     }
     return render(request, 'autofarmapage/ver-receta2.html', data)
 

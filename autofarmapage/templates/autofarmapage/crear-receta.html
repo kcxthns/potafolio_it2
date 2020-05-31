@@ -91,8 +91,8 @@
             {% csrf_token %}
             <!--Buscar -->
             <div class="contenedor-inputs">
-              <input class="input-48 campo-buscar" type="text" name="rutpaciente" required
-                placeholder="Buscar por RUT" />
+              <input class="input-48 campo-buscar" type="text" name="rutpaciente" maxlength="8" required
+                placeholder="Buscar por RUT paciente" />
               <button class="b-buscar" formmethod="GET" type="submit" name="submit">
                 <i class="fa fa-search fa-lg" style="font-size: 20px; color: #fff;"></i>
               </button>
@@ -118,17 +118,17 @@
 
 
           <!-- Datos si encuentra al paciente -->
-
-          <!--Nombre completo paciente -->
+          <!-- Nombre completo paciente -->
           <div class="col-xs-12 col-md-12 col-lg-12 center-xs">
             <form method="POST">{% csrf_token %}
+              <!--Nombre paciente -->
+              <h4 class="subtitulo-receta1"> Datos del paciente:</h4>
 
-              <label class="campo">Nombre paciente:</label>
-              <input class="input-100" type="text" name="nombre-completo" value="{{nombrePaciente}}" disabled />
-
+              <label for="2">Nombre paciente: </label>
+              <input class="input-40" type="text" name="nombre-completo" value="{{nombrePaciente}}" readonly />
+              <!--Rut paciente -->
               <label for="2">RUT paciente: </label>
-              <input name="pacienterut" id="2" value="{{ rutpat}}" readonly />
-
+              <input class="input-20" name="pacienterut" id="2" value="{{ rutpat}}" readonly />
 
               <div class="campo-compuesto">
                 <label class="casilla input-60-s">
@@ -143,18 +143,20 @@
               </div>
               <div class="campo-doble">
 
-                <!-- NÚMERO DE LA RECETA -->
-
-                <label class="campo">Nombre médico:</label>
-                <input class="input-100" type="text" name="nombre-completo"
-                  value="{{user.rut.nombres}} {{user.rut.apellido_paterno}}" disabled />
+                <h4 class="subtitulo-receta1">Datos del médico:</h4>
+                <!-- Nombre médico-->
+                <label>Nombre médico:</label>
+                <input class="input-40" type="text" name="nombre-completo"
+                  value="{{user.rut.nombres}} {{user.rut.apellido_paterno}} {{user.rut.apellido_materno}}" readonly />
+                <!--Rut médico-->
                 <label for="1">RUT médico:</label>
-                <input name="rutmedico" id="1" value="{{ user.rut.rut}}" readonly>
+                <input class="input-20" name="rutmedico" id="1" value="{{ user.rut.rut}}" readonly />
 
                 <!-- apartado receta-->
 
-
-                <button class="btn b-guardar" formmethod="POST">Continuar</button>
+                <div class="area-continuar">
+                  <button class="btn b-continuar" formmethod="POST"> Continuar </button>
+                </div>
             </form>
           </div>
         </div>

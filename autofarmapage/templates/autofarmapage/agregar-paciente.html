@@ -27,22 +27,13 @@
       <input class="input-48" id="apellido_materno" type="text" name="apellido_materno" required
         placeholder="Apellido Materno" />
       <!-- RUT -->
+      <input class="input-48" id="rut" type="text" name="rut" required placeholder="RUT" maxlength="12"
+        oninput="checkRut(this)" onkeypress="return isNumber(event)" />
+      <!--<input class=" input-8" id="dv" type="text" name="dv" required maxlength="1" placeholder="K">-->
 
-      <div class="input-48-s rut-v">
-        <input class="input-90" 
-          id="rut" 
-          type="text" 
-          name="rut" 
-          required 
-          placeholder="RUT" 
-          maxlength="12" 
-          oninput="checkRut(this)"
-          onkeypress="return isNumber(event)"/>
-        <!--<input class=" input-8" id="dv" type="text" name="dv" required maxlength="1" placeholder="K">-->
-      </div>
       <!-- Teléfono -->
-      <input class="input-48" id="telefono" type="tel" pattern="[0-9]{9}" name="telefono" required
-        placeholder="Teléfono celular" />
+      <input class="input-48" id="telefono" type="tel" pattern="[0-9]{9}" maxlength="9" name="telefono" required
+        placeholder="Celular (9 dígitos)" />
       <!-- Email -->
       <input class="input-100" id="correo_electronico" type="email" name="correo_electronico" required
         placeholder="Correo electrónico" />
