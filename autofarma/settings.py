@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'autofarmapage.apps.AutofarmapageConfig',
     'rest_framework',
-    'rest_framework.authtoken',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -74,9 +74,9 @@ WSGI_APPLICATION = 'autofarma.wsgi.application'
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES':(
+    'DEFAULT_AUTHENTICATION_CLASSES':[
         'rest_framework.authentication.TokenAuthentication',
-    ),
+    ]
 
 
 }

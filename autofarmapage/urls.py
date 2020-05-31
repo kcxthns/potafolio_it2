@@ -2,14 +2,15 @@ from django.urls import path, reverse_lazy, include
 from . import views
 from django.contrib.auth import views as auth_views
 #rest_framework
-#from rest_framework import views
+from rest_framework import views
 from .views import RecetaViewSet
 from rest_framework import routers
-from rest_framework.authtoken import views
+
 router = routers.DefaultRouter()
 router.register('receta', RecetaViewSet)
+from rest_framework.authtoken import views
 
-
+app_name = 'autofarmapage'
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -73,8 +74,9 @@ urlpatterns = [
 
     path('cambio_exitoso', views.passwordResetCompleto, name='reset_completo'),
     #rest_framework
-    path('api/', include(router.urls)),
-    path('api-token-auth/', views.obtain_auth_token, name='api-token-auth')
+
+    path('api/', include(router.urls), name='api'),
+    path('api-token-auth/', views.obtain_auth_token, name='api-token-auth'),
 
     
     
