@@ -1,6 +1,15 @@
-from django.urls import path, reverse_lazy
+from django.urls import path, reverse_lazy, include
 from . import views
 from django.contrib.auth import views as auth_views
+#rest_framework
+#from rest_framework import views
+from .views import RecetaViewSet
+from rest_framework import routers
+from rest_framework.authtoken import views
+router = routers.DefaultRouter()
+router.register('receta', RecetaViewSet)
+
+
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -14,6 +23,8 @@ urlpatterns = [
     path('exito-guardar-tutor', views.guardadoTutorExito, name='exito-guardar-tutor'),
     path('exito-modificar-usuario', views.modificarUsuarioExito, name='exito-modificar-usuario'),
     path('logout', views.logout),
+
+    
 
     #urls farmacia
     path('inicio-farmacia', views.inicioFarmacia, name='inicio-farmacia'),
@@ -61,5 +72,11 @@ urlpatterns = [
         name='password_reset'),
 
     path('cambio_exitoso', views.passwordResetCompleto, name='reset_completo'),
+    #rest_framework
+    path('api/', include(router.urls)),
+    path('api-token-auth/', views.obtain_auth_token, name='api-token-auth')
+
+    
+    
 
 ]

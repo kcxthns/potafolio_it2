@@ -14,6 +14,12 @@ from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from .validacion import Validador
 from datetime import datetime
+#import rest_framework
+from rest_framework import viewsets
+from .serializers import RecetaSerializer
+from rest_framework.response import Response
+from rest_framework.decorators import action
+
 
 # Create your views here.
 
@@ -943,6 +949,11 @@ def verReceta2(request, id_receta):
         'detallereceta':detallereceta
     }
     return render(request, 'autofarmapage/ver-receta2.html', data)
+
+#rest_framework
+class RecetaViewSet(viewsets.ModelViewSet):
+    queryset = Receta.objects.all()
+    serializer_class = RecetaSerializer    
 
 # este es la forma con el form de django en el html la vista
 # de html que deben usar es la llamada editarpage
