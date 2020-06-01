@@ -19,6 +19,10 @@ from rest_framework import viewsets
 from .serializers import RecetaSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.generics import ListAPIView
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.pagination import PageNumberPagination
+from rest_framework import generics
 
 
 # Create your views here.
@@ -954,6 +958,14 @@ def verReceta2(request, id_receta):
 class RecetaViewSet(viewsets.ModelViewSet):
     queryset = Receta.objects.all()
     serializer_class = RecetaSerializer    
+
+class ApiRecetaListView(generics.ListAPIView):
+    queryset = Receta.objects.all()
+    serializer_class = RecetaSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter, OrderingFilter)
+    pagination_class = PageNumberPagination
+    search_fields = ('id_receta', 'rut_paciente__rut')
 
 # este es la forma con el form de django en el html la vista
 # de html que deben usar es la llamada editarpage

@@ -2,7 +2,7 @@ from django.urls import path, reverse_lazy, include
 from . import views
 from django.contrib.auth import views as auth_views
 #rest_framework
-from .views import RecetaViewSet
+from .views import RecetaViewSet, ApiRecetaListView
 from rest_framework import routers
 #from rest_framework import authtoken
 from rest_framework.authtoken.models import Token
@@ -79,6 +79,7 @@ urlpatterns = [
 
     path('api/', include(router.urls)),
     path('api-token-auth/', obtain_auth_token, name='api-token-auth'),
+    path('ListReceta', ApiRecetaListView.as_view(), name='ListReceta')
 
     
     
