@@ -41,6 +41,7 @@ def index(request):
         password = request.POST['password']
         # se autentica el usuario
         user = authenticate(username=username, password=password)
+        #print(user.rut.rut)
         if user is not None:
             login(request, user)
             # revisa el tipo de empleado que se conecta y lo redirije a su respectivo home
