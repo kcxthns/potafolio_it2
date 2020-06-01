@@ -12,7 +12,7 @@ router = routers.DefaultRouter()
 router.register('receta', RecetaViewSet)
 
 
-app_name = 'autofarmapage'
+#app_name = 'autofarmapage'
 
 urlpatterns = [
     path('', views.index, name='index'),
