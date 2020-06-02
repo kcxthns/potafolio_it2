@@ -7,23 +7,33 @@ Farmacia - Bodega
 
 {% block menu_inicio_bodega %}
 <div class="col-xs-12 col-lg-6 center-lg">                              
-    <div class="button_usuario">
+    <div class="b-crear-receta">
         <a href="{% url 'agregar-medicamento' %}"><img src="{% static 'imagenes/icono_agregar_medicamento.png' %}" alt="agregarMedicamento"  height="100" width="100"></a>
         <h4>Agregar Medicamento</h4>
     </div>                                     
 </div>
 
 <div class="col-xs-12 col-lg-6 center-lg">    
-    <div class="button_listarusuarios">
+    <div class="b-agregar-paciente">
         <a href="{% url 'listar-medicamento' %}"><img src="{% static 'imagenes/icono_listar_medicamento.png' %}" alt="listarMedicametos"  height="100" width="100"></a>
          <h4>Listar Medicamentos</h4>
     </div>                      
 </div>
 
-<div class="col-xs-12 col-lg-12">                                                       
-    <div class="button_listarinformes">
+<div class="col-xs-12 col-lg-6 center-lg">                                                       
+    <div class="b-asignar-tutor">
         <a href="#"><img src="{% static 'imagenes/icono-listar_informes.png' %}" alt="informes" height="100" width="100"></img></a>
-        <h4 id="h4listarinformes">Informes</h4>
+        <h4>Informes</h4>
     </div>           
 </div> 
+
+<div class="col-xs-12 col-lg-6 center-lg">
+    <div class="b-ver-recetas">
+        <a href="{% url 'inicio-farmacia' %}">
+            <img src="{% static 'imagenes/ver-recetas.png' %}" alt="ver recetas" height="100"
+                width="100"></img>
+        </a>
+        <h4>Home Farmacia</h4>
+    </div>
+</div>
 {% endblock %}

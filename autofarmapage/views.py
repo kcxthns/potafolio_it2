@@ -594,7 +594,7 @@ def entregaMedicamento(request, id_receta):
         cursor = con.cursor()
         query = (
             "SELECT rec.fecha_receta, "
-            "detalle.codigo, "
+            "detalle.codigo AS CODIGO_MED, "
             "med.nombre_medicamento, "
             "med.descripcion, "
             "tipo_med.nombre_tipo_med AS TIPO_MEDICAMENTO, "
@@ -608,7 +608,16 @@ def entregaMedicamento(request, id_receta):
             "pers.nombres || ' ' || pers.apellido_paterno || ' ' || pers.apellido_materno as NOMBRE_PACIENTE, "
             "NVL(stock.stock, 0) AS STOCK_TOTAL, "
             "NVL(cadu.cantidad, 0) as CADUCADOS, "
-            "NVL(stock.stock, 0) - NVL(cadu.cantidad, 0) AS STOCK_DISPONIBLE "
+            "(CASE WHEN NVL(stock.stock, 0) - NVL(cadu.cantidad, 0) - "
+            "NVL((SELECT SUM(reserva.cantidad) FROM reserva_medicamento reserva JOIN receta ON reserva.id_receta = receta.id_receta JOIN persona ON receta.rut_paciente = persona.rut "
+            "WHERE persona.id_centro = pers.id_centro AND reserva.codigo = detalle.codigo),0) <= 0 THEN 0 "
+            "ELSE NVL(stock.stock, 0) - NVL(cadu.cantidad, 0) - "
+            "NVL((SELECT SUM(reserva.cantidad) FROM reserva_medicamento reserva JOIN receta ON reserva.id_receta = receta.id_receta JOIN persona ON receta.rut_paciente = persona.rut  "
+            "WHERE persona.id_centro = pers.id_centro AND reserva.codigo = detalle.codigo),0) END) AS STOCK_DISPONIBLE, "
+            "NVL((SELECT SUM(reserva.cantidad) FROM reserva_medicamento reserva JOIN receta ON reserva.id_receta = receta.id_receta JOIN persona ON receta.rut_paciente = persona.rut WHERE persona.id_centro = pers.id_centro AND reserva.codigo = detalle.codigo), 0) AS RESERVADOS, "
+            "(CASE WHEN (SELECT COUNT(id_reserva) FROM reserva_medicamento "
+            "WHERE codigo = detalle.codigo AND id_receta = detalle.id_receta AND entregado = 0) = 0 THEN 0 "
+            "ELSE 1 END) AS RESERVADO "
             "FROM detalle_receta detalle INNER JOIN tipo_tratamiento tratamiento ON detalle.id_tipo_tratamiento = tratamiento.id_tipo_tratamiento "
             "INNER JOIN medida_tiempo tiempo ON detalle.id_medida_t = tiempo.id_medida_t "
             "INNER JOIN receta rec ON detalle.id_receta = rec.id_receta "
@@ -637,10 +646,26 @@ def entregaMedicamento(request, id_receta):
             'receta' : receta,
         }
     if request.method == 'POST':
-        opcForm = int(request.POST['boton'])
-        codMed = request.POST['codigo_medicamento']
+        if 'boton_reserva_1' in request.POST:
+            opcForm = 2
+            codMed = request.POST['codigo_medicamento_2_1']
+            cantidadReserva = int(request.POST['cantidad_reserva_2_1'])
+        if 'boton_reserva_2' in request.POST:
+            opcForm = 2
+            codMed = request.POST['codigo_medicamento_2_2']
+            cantidadReserva = int(request.POST['cantidad_reserva_2_2'])
+        if 'boton_entrega_1' in request.POST:
+            opcForm = 1
+            codMed = request.POST['codigo_medicamento_1_1']
+            cantidadEntrega = int(request.POST['cantidad_entrega_1_1'])
+        if 'boton_entrega_2' in request.POST:
+            opcForm = 1
+            codMed = request.POST['codigo_medicamento_1_2']
+            cantidadEntrega = int(request.POST['cantidad_entrega_1_2'])
+        print(opcForm)
+        print(codMed)
         if opcForm == 1:
-            cantidadEntrega = request.POST['cantidad_entrega']
+            #cantidadEntrega = request.POST['cantidad_entrega_1']
             bd = ConexionBD()
             con = bd.conectar()
             cursor = con.cursor()
@@ -658,7 +683,6 @@ def entregaMedicamento(request, id_receta):
                 else:
                     return redirect('resultado-entrega', id_receta = id_receta, codigo_med=0, cantidad=0, numMensaje=0)
         if opcForm == 2:
-            cantidadReserva = request.POST['cantidad_reserva']
             bd = ConexionBD()
             con = bd.conectar()
             cursor = con.cursor()
@@ -710,8 +734,99 @@ def entregaResultado(request, id_receta, codigo_med, cantidad, numMensaje):
             'reserva' : reserva,
             'numero_mensaje' : numMensaje
         }
+    elif numMensaje == 5:
+        medicamento = Medicamento.objects.get(codigo=codigo_med)
+        mensaje = 'La entrega del Medicamento ' + medicamento.nombre_medicamento + ' ha sido registrada.'
+        datos = {
+            'numero_mensaje' : numMensaje,
+            'mensaje' : mensaje,
+            'cantidad' : cantidad,
+            'medicamento' : medicamento,
+            'id_receta' : id_receta,
+        }
     return render(request, 'autofarmapage/farmacia/entrega_resultado.html', datos)
 
+def reservaLista(request):
+    bd = ConexionBD()
+    con = bd.conectar()
+    cursor = con.cursor()
+    query = ("SELECT reserva.fecha_reserva, "
+            "pers.rut, "
+            "pers.nombres ||' '|| pers.apellido_paterno ||' '|| pers.apellido_materno as NOMBRE_PACIENTE, "
+            "med.nombre_medicamento, "
+            "reserva.stock_disponible, "
+            "(CASE WHEN reserva.stock_disponible = 1 THEN 'Sí' ELSE 'No' END) AS LISTO_ENTREGAR, "
+            "reserva.id_reserva "
+            "FROM reserva_medicamento reserva "
+            "INNER JOIN receta rec ON reserva.id_receta = rec.id_receta "
+            "INNER JOIN persona pers ON rec.rut_paciente = pers.rut "
+            "INNER JOIN medicamento med ON reserva.codigo = med.codigo "
+            "WHERE entregado = 0"
+    )
+    cursor.execute(query)
+    def fabricaDiccionario(cursor):
+        columnNames = [d[0] for d in cursor.description]
+        def createRow(*args):
+            return dict(zip(columnNames, args))
+        return createRow
+    cursor.rowfactory = fabricaDiccionario(cursor)
+    reservas = cursor.fetchall()
+    datos = {
+        'reservas' : reservas,
+    }
+    return render(request, 'autofarmapage/farmacia/reservas-lista.html', datos)
+
+def reservaDetalle(request, id_reserva):
+    query=(
+        "SELECT med.nombre_medicamento, "
+        "med.descripcion, "
+        "tipo_med.nombre_tipo_med AS TIPO_MEDICAMENTO, "
+        "detalle.posologia, "
+        "reserva.cantidad, "
+        "reserva.id_receta, "
+        "reserva.id_reserva, "
+        "pers.rut ||'-'||pers.dv AS RUT_PACIENTE, "
+        "initcap(pers.nombres) ||' '|| initcap(pers.apellido_paterno)||' '||initcap(pers.apellido_materno) AS NOMBRE_PACIENTE, "
+        "reserva.codigo, "
+        "reserva.stock_disponible "
+        "FROM reserva_medicamento reserva "
+        "INNER JOIN detalle_receta detalle ON reserva.id_receta = detalle.id_receta AND reserva.codigo = detalle.codigo "
+        "INNER JOIN receta rec ON detalle.id_receta = rec.id_receta "
+        "INNER JOIN persona pers ON rec.rut_paciente = pers.rut "
+        "INNER JOIN medicamento med ON med.codigo = reserva.codigo "
+        "INNER JOIN tipo_medicamento tipo_med ON med.id_tipo_med = tipo_med.id_tipo_med "
+        "WHERE reserva.id_reserva = :id_reserva"
+    )
+    bd = ConexionBD()
+    con = bd.conectar()
+    cursor = con.cursor()
+    cursor.execute(query, [id_reserva])
+    def fabricaDiccionario(cursor):
+        columnNames = [d[0] for d in cursor.description]
+        def createRow(*args):
+            return dict(zip(columnNames, args))
+        return createRow
+    cursor.rowfactory = fabricaDiccionario(cursor)
+    reserva = cursor.fetchall()
+    datos ={
+        'reserva' : reserva,
+    }
+    if request.method == 'POST':
+        spIdReserva = int(request.POST['id_reserva'])
+        id_receta = reserva[0]['ID_RECETA']
+        codigo_med = reserva[0]['CODIGO']
+        cantidad = reserva[0]['CANTIDAD']
+        bd = ConexionBD()
+        con = bd.conectar()
+        cursor = con.cursor()
+        resultado = cursor.var(int)
+        cursor.callproc('pkg_farmacia.sp_entregar_medicamento_reserva', [spIdReserva, request.user.rut.rut, resultado])
+        print(resultado.getvalue())
+        if resultado.getvalue() == 1:
+            return redirect('resultado-entrega', id_receta = id_receta, codigo_med=codigo_med, cantidad=cantidad, numMensaje=5)
+        else:
+            return redirect('resultado-entrega', id_receta = spIdReserva, codigo_med=0, cantidad=0, numMensaje=0)
+    return render(request, 'autofarmapage/farmacia/reservas-detalle.html', datos)
 #################
 # VISTAS MÉDICO #
 #################

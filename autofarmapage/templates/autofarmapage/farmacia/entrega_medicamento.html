@@ -4,6 +4,8 @@
 {% block datos_paciente %}
 {% for receta in receta %}
 <div class="col-xs-12 start-xs separacionInterior">
+    <p class="labelListar">ID Receta</p>
+    <p>{{ receta.id_receta }}</p>
     <h4>Paciente</h4>
     <p>{{ receta.rut_paciente.rut }}-{{ receta.rut_paciente.dv }}</p>
     <p>{{ receta.rut_paciente.nombres | capfirst }} {{receta.rut_paciente.apellido_paterno | capfirst }} {{receta.rut_paciente.apellido_materno | capfirst }}</p>
@@ -119,32 +121,34 @@
             <p class="tratamientoPermanente">No hay Stock Disponible en Bodega</p>
         </div>
     </div>
+    <!--FORMULARIO RESERVA-->
     <div class="row">
         <div class="col-xs-6 center-xs" > 
-        <form action="#" method="POST">
+        <form method="POST">
             {% csrf_token %}
-                <input type="hidden" name="codigo_medicamento" id="codigo_medicamento"
+                <input type="hidden" name="codigo_medicamento_2_1" id="codigo_medicamento_2_1"
                     value="{{ detalle.CODIGO_MED }}">
-                <input type="hidden" name="id_receta" id="id_receta"
-                    value="{{ receta.id_receta }}">
-                <input type="number" id="cantidad_reserva" name="cantidad_reserva" min="1"
-                    placeholder="Unidades a reservar">
-            <button type="submit" name="boton" value="2">RESERVAR</button>
+                <!--<input type="hidden" name="id_receta" id="id_receta"
+                    value="{{ receta.id_receta }}">-->
+                <input type="number" id="cantidad_reserva_2_1" name="cantidad_reserva_2_1" min="1"
+                    placeholder="Unidades a reservar" required>
+            <button class="btn" type="submit" name="boton_reserva_1" value="2">RESERVAR</button>
         </form>
         </div>
     </div>
     {% else %}
+    <!--FORMULARIO ENTREGA-->
     <div class="row" id="formulario_entrega">
         <div class="col-xs-12 center-xs">
             <form action="#" method="POST">
                 {% csrf_token %}
-                <input type="hidden" name="codigo_medicamento" id="codigo_medicamento"
+                <input type="text" name="codigo_medicamento_1_1" id="codigo_medicamento_1_1"
                 value="{{ detalle.CODIGO_MED }}">
-                <input type="hidden" name="id_receta" id="id_receta" 
-                value="{{ receta.id_receta }}">
-                <input type="number" id="cantidad_entrega" name="cantidad_entrega" min="1">
+                <!--<input type="hidden" name="id_receta" id="id_receta" 
+                value="{{ receta.id_receta }}">-->
+                <input type="number" id="cantidad_entrega_1_1" name="cantidad_entrega_1_1" min="1" required>
                 <div class="row center-xs">
-                    <button type="submit" name="boton" value="1">ENTREGAR</button>
+                    <button class="btn" type="submit" name="boton_entrega_1" value="1">ENTREGAR</button>
                 </div>
             </form>
         </div>
@@ -204,24 +208,30 @@
         </div>
         <div class="cardListar">
             <div class="row backgroundStock">
-                <div class="col-xs-4 center-xs">
+                <div class="col-xs-3 center-xs">
                     <p class="labelListar">Stock Total: </p>
                 </div>
-                <div class="col-xs-4 center-xs">
+                <div class="col-xs-3 center-xs">
                     <p class="labelListar">Caducados: </p>
                 </div>
-                <div class="col-xs-4 center-xs">
+                <div class="col-xs-3 center-xs">
+                    <p class="labelListar">Reservados: </p>
+                </div>
+                <div class="col-xs-3 center-xs">
                     <p class="labelListar">Stock Disponible: </p>
                 </div>
             </div>
             <div class="row backgroundStock">
-                <div class="col-xs-4 center-xs">
+                <div class="col-xs-3 center-xs">
                     <p>{{ detalle.STOCK_TOTAL }}</p>
                 </div>
-                <div class="col-xs-4 center-xs">
+                <div class="col-xs-3 center-xs">
                     <p>{{ detalle.CADUCADOS }}</p>
                 </div>
-                <div class="col-xs-4 center-xs">
+                <div class="col-xs-3 center-xs">
+                    <p>{{ detalle.RESERVADOS }}</p>
+                </div>
+                <div class="col-xs-3 center-xs">
                     <p>{{ detalle.STOCK_DISPONIBLE }}</p>
                 </div>
             </div>
@@ -245,30 +255,40 @@
                 <p class="tratamientoPermanente">No hay Stock Disponible en Bodega</p>
             </div>
         </div>
+        {% if detalle.RESERVADO == 0 %}
+        <!--FORMULARIO RESERVA-->
         <div class="row">
             <div class="col-xs-6 center-xs" > 
             <form action="#" method="POST">
                 {% csrf_token %}
-                    <input type="hidden" name="codigo_medicamento" id="codigo_medicamento"
+                    <input type="hidden" name="codigo_medicamento_2_2" id="codigo_medicamento_2_2"
                         value="{{ detalle.CODIGO_MED }}">
-                    <input type="hidden" name="id_receta" id="id_receta"
-                        value="{{ receta.id_receta }}">
-                    <input type="number" id="cantidad_reserva" name="cantidad_reserva" min="1"
-                        placeholder="Unidades a reservar">
-                <button type="submit" name="boton" value="2">RESERVAR</button>
+                    <!--<input type="hidden" name="id_receta" id="id_receta"
+                        value="{{ receta.id_receta }}">-->
+                    <input type="number" id="cantidad_reserva_2_2" name="cantidad_reserva_2_2" min="1"
+                        placeholder="Unidades a reservar" required>
+                <button class="btn" type="submit" name="boton_reserva_2" value="2">RESERVAR</button>
             </form>
             </div>
             <div class="col-xs-6 center-xs">
                 <form action="#" method="POST">
                     {% csrf_token %}
-                    <input type="hidden" name="codigo_medicamento" id="codigo_medicamento"
+                    <input type="hidden" name="codigo_medicamento_3" 
                         value="{{ detalle.CODIGO_MED }}">
-                    <input type="hidden" name="id_receta" id="id_receta"
-                        value="{{ receta.id_receta }}">
-                    <button type="submit" name="boton" value="3">Adquirir Particular</button>
+                    <!--<input type="hidden" name="id_receta" id="id_receta"
+                        value="{{ receta.id_receta }}">-->
+                    <button class="btn" type="submit" name="boton" value="3">Adquirir Particular</button>
                 </form>
             </div>
         </div>
+        {% else %}
+        <div class="row">
+            <div class="col-xs-12 center-xs">
+                <h5>Existe una Reserva para este Medicamento.</h5>
+            </div>
+            <br>
+        </div>
+        {% endif %}
         {% else %}
         <div class="cardListar">
             <div class="row">
@@ -278,17 +298,18 @@
                 </div>
             </div>
         </div>
+        <!--FORMULARIO ENTREGA-->
         <div class="row" id="formulario_entrega">
             <div class="col-xs-12 center-xs">
-                <form action="#" method="POST">
+                <form method="POST">
                     {% csrf_token %}
-                    <input type="hidden" name="codigo_medicamento" id="codigo_medicamento"
-                        value="{{ detalle.CODIGO }}">
-                    <input type="hidden" name="id_receta" id="id_receta" 
-                        value="{{ detalle.ID_RECETA }}">
-                    <input type="number" id="cantidad_entrega" name="cantidad_entrega" min="1">
+                    <input type="hidden" name="codigo_medicamento_1_2" id="codigo_medicamento_1_2"
+                        value="{{ detalle.CODIGO_MED }}">
+                    <!--<input type="hidden" name="id_receta" id="id_receta" 
+                        value="{{ detalle.ID_RECETA }}">-->
+                    <input type="number" id="cantidad_entrega_1_2" name="cantidad_entrega_1_2" min="1">
                     <div class="row center-xs">
-                    <button type="submit" name="boton" value="1">ENTREGAR</button>
+                    <button class="btn" type="submit" name="boton_entrega_2" value="1">ENTREGAR</button>
                     </div>
                 </form>
             </div>

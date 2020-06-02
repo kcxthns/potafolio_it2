@@ -58,7 +58,7 @@
                         </div>
                         <div class="col-xs-12 col-lg-12 center-lg">
                             <div class="b2-agregar-paciente">
-                                <a href="#"><img src="{% static 'imagenes/agregarUsuario.png' %}"
+                                <a href="{% url 'reservas-lista' %}"><img src="{% static 'imagenes/agregarUsuario.png' %}"
                                         alt="Reservas_Medicamentos" height="60" width="60" /></a>
                                 <h4>Medicamentos Reservados</h4>
                             </div>
@@ -66,18 +66,18 @@
 
                         <div class="col-xs-12 col-lg-12 center-lg">
                             <div class="b2-asignar-tutor">
-                                <a href="#"><img src="{% static 'imagenes/asignar-tutor2.png' %}"
-                                        alt="Prescripciones_por_pacientes" height="60" width="60" /></a>
-                                <h4>Pacientes con Prescripciones Pendientes</h4>
+                                <a href="{% url 'inicio-farmacia' %}"><img src="{% static 'imagenes/asignar-tutor2.png' %}"
+                                        alt="home_farmacia" height="60" width="60" /></a>
+                                <h4>Home Farmacia</h4>
                             </div>
                         </div>
-                        <!--<div class="col-xs-12 col-lg-12 center-lg">
+                        <div class="col-xs-12 col-lg-12 center-lg">
                                 <div class="b2-ver-recetas">
-                                    <a href="{% url 'ver-recetas' %}"><img src="{% static 'imagenes/ver-recetas2.png' %}" alt="ver recetas"
+                                    <a href="{% url 'inicio-farmacia' %}"><img src="{% static 'imagenes/ver-recetas2.png' %}" alt="home farmacia"
                                         height="60" width="60" /></a>
-                                    <h4>Ver recetas</h4>
+                                    <h4>Home Farmacia</h4>
                                 </div>
-                            </div>-->
+                            </div>
                     </div>
                 </div>
             </div>
@@ -99,6 +99,13 @@
                 {% endblock %}
 
                 {% block entrega_resultado %}
+                {% endblock %}
+
+                <!--RESERVAS-->
+                {% block reservas_lista %}
+                {% endblock %}
+
+                {% block reservas_detalle %}
                 {% endblock %}
             </div>
         </section>

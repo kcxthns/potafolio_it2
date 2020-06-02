@@ -1,0 +1,39 @@
+{% extends 'autofarmapage/farmacia/farmacia_entregas_base.html' %}
+{% load static %}
+
+{% block titulo %}
+Farmacia - Reservas Medicamentos
+{% endblock %}
+
+{% block reservas_lista %}
+<div>
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha Reserva</th>
+                <th>RUT</th>
+                <th>Paciente</th>
+                <th>Medicamento</th>
+                <th>Listo para Entregar</th>
+                <th></th>
+            </tr>
+        </thead>
+        {% if reservas %}
+        {% for reserva in reservas %}
+        <tr>
+            <td>{{ reserva.FECHA_RESERVA }}</td>
+            <td>{{ reserva.RUT }}</td>
+            <td>{{ reserva.NOMBRE_PACIENTE }}</td>
+            <td>{{ reserva.NOMBRE_MEDICAMENTO }}</td>
+            <td>{{ reserva.LISTO_ENTREGAR }}</td>
+            <td>
+                <button class="btn-x" type="button">
+                    <a href="{% url 'reservas-detalle' reserva.ID_RESERVA %}"><i class="fa fa-eye fa-lg"></i></a>
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+        {% endif %}
+    </table>
+</div>
+{% endblock %}

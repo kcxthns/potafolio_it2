@@ -26,6 +26,8 @@ urlpatterns = [
     path('entregas-pendientes', views.entregasPendientes, name='entregas-pendientes'),
     path('entrega-medicamento/<int:id_receta>', views.entregaMedicamento, name='entrega-medicamento'),
     path('resultado-entrega/<int:id_receta>/<int:codigo_med>/<int:cantidad>/<int:numMensaje>', views.entregaResultado, name='resultado-entrega'),
+    path('reservas-lista', views.reservaLista, name='reservas-lista'),
+    path('reservas-detalle/<int:id_reserva>', views.reservaDetalle, name='reservas-detalle'),
 
     # urls médico
     path('home_medico', views.home_medico, name='home_medico'),

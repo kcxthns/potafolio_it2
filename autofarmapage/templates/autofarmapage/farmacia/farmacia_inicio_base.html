@@ -8,8 +8,8 @@
     <!--Enlace flexbox-->
     <link rel="stylesheet"  href="{% static 'css/flexboxgrid.css' %}">
     <!--Enlace css-->
-    <link rel="stylesheet"  href="{% static 'css/estilohomeadmi.css' %}">
-    
+    <!--<link rel="stylesheet"  href="{% static 'css/estilohomeadmi.css' %}">-->
+    <link rel="stylesheet" href="{% static 'css/styleMedico.css' %}">
     <!--Enlaces fonts-->
     <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono&display=swap" rel="stylesheet">
 
@@ -23,7 +23,7 @@
 
 <body>
     <div class="container">
-        <header class="row backgroundheader">
+        <header class="row backgroundheader-home">
             <div class="col-xs-12 col-lg-12">
                 <div class="header">
                     <div>
@@ -34,17 +34,15 @@
         </header>
     </div>
 
-    <section class="row section">
-        <div class="col-xs-12 col-lg-2 start-lg backgroundleft">          
-            <div class="sideleft">
+    <section class="row">
+        <div class="col-xs-12 col-lg-2 start-lg home-medico">          
+            <div class="b-lateral">
                 <img src="{% static 'imagenes/User-Profile.png' %}" alt="LogoUsuario" width="90" height="90">
                 <div class="row">
                     <div class="col-xs-12 col-lg-12 center-xs">
-                        <h4 id="encabezado1">{{ user.rut.nombres|upper }} {{ user.rut.apellido_paterno|upper }}</h4>
-                                
+                        <h4 id="encabezado1">{{ user.rut.nombres|upper }} {{ user.rut.apellido_paterno|upper }}</h4>          
                     </div>
                 </div>
-                
                 <div class="row">
                     <div class="col-xs-12 col-lg-12 center-xs">
                         <h4 id="parrafo1">{{ user.id_tipo_empleado.tipo_empleado|upper }}</h4>
@@ -52,7 +50,7 @@
                 </div>
                 <br>
                 <div class="row">
-                    <div class="col-xs-12 center-xs">
+                    <div class="col-xs-12 center-xs centro-salud">
                         <p>{{ user.rut.id_centro.nombre_centro|upper }}</p>
                     </div>
                 </div>
@@ -62,17 +60,23 @@
                     </div>
                 </div>
                 <br>
-                <div class="row">
+                <div class="row cambiar-pass">
                     <div class="col-xs-12 col-lg-12 center-xs">                      
-                        <a href="{% url 'password_change' %}">Cambiar Contraseña</a> 
-                        <a href="/logout" ><img  class="a-imagen" src="{% static 'imagenes/Close1.png' %}" alt="cerrar_Sesion" height="auto" width="150"></a>
+                        <a class="linea" href="{% url 'password_change' %}">Cambiar Contraseña</a> 
+                    </div>
+                </div>
+                <div class="row cerrar">
+                    <div class="col-xs-12 center-xs">
+                        <a href="/logout" >
+                            <img class="img-perfil" src="{% static 'imagenes/Close1.png' %}" 
+                            alt="cerrar_Sesion" height="auto" width="150"></a>
                     </div>
                 </div>       
             </div>
         </div>
 
-        <div class="col-xs-12 col-lg-10 center-xs backgroundright">
-            <div class="sideright">
+        <div class="col-xs-12 col-lg-10 center-xs menu">
+            <div class="home-opciones">
                 <div class="row">
                     {% block inicio_menu %}
                     {% endblock %}

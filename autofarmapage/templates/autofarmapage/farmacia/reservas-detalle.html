@@ -1,0 +1,74 @@
+{% extends 'autofarmapage/farmacia/farmacia_entregas_base.html' %}
+{% load static %}
+
+{% block reservas_detalle %}
+{% for reserva in reserva %}
+<div class="col-xs-12 start-xs separacionInterior">
+    <p class="labelListar">ID Reserva</p>
+    <p>{{ reserva.ID_RESERVA }}</p>
+    <P class="labelListar">ID Receta</P>
+    <p>{{ reserva.ID_RECETA }}</p>
+    <h4>Paciente</h4>
+    <p>{{ reserva.RUT_PACIENTE }}</p>
+    <p>{{ reserva.NOMBRE_PACIENTE }}</p>
+</div>
+
+<div class="col-xs-12 cardListar">
+    <div class="row">
+        <div class="col-xs-2 start-xs">
+            <p class="labelListar">Nombre Medicamento: </p>
+        </div>
+        <div class="col-xs-10 start-xs">
+            <p>{{ reserva.NOMBRE_MEDICAMENTO }}</p>
+        </div>
+    </div>
+    <div class="row ">
+        <div class="col-xs-2 start-xs">
+            <p class="labelListar">Descripción Medicamento: </p>
+        </div>
+        <div class="col-xs-10 start-xs">
+            <p>{{ reserva.DESCRIPCION }}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-2 start-xs">
+            <p class="labelListar">Formato: </p>
+        </div>
+        <div class="col-xs-10 start-xs">
+            <p>{{ reserva.TIPO_MEDICAMENTO }}</p>
+        </div>
+    </div>
+    <div class="row separacionInterior">
+        <div class="col-xs-2 start-xs">
+            <p class="labelListar">Posología: </p>
+        </div>
+        <div class="col-xs-10 start-xs">
+            <P>{{ reserva.POSOLOGIA }}</P>
+        </div>
+    </div>
+    <div class="cardListar">
+        <div class="row separacionInterior backgroundStock">
+            <div class="col-xs-2 start-xs">
+                <p class="labelListar">Unidades Entrega:</p>
+            </div>
+            <div class="col-xs-2 start-xs">
+                <p>{{ reserva.CANTIDAD }}</p>
+            </div>    
+        </div>
+    </div>
+    <div class="col-xs-12 center-xs">
+        {% if reserva.STOCK_DISPONIBLE == 1 %}
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="id_reserva" id="id_reserva"
+            value="{{ reserva.ID_RESERVA }}">
+            <button class="btn" type="submit" name="boton">ENTREGAR</button>
+        </form>
+        {% else %}
+        <p class="tratamientoPermanente">No hay Stock Disponible</p>
+        {% endif %}
+        <br>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
