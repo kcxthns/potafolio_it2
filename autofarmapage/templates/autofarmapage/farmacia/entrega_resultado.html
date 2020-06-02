@@ -43,5 +43,48 @@
         <h3>{{ mensaje }}</h3>
     </div>
 </div>
+{% elif numero_mensaje == 3 %}
+<div>
+    <br>
+    <div class="col-xs-12 center-xs">
+        <h3>{{ mensaje }}</h3>
+    </div>
+    <div class="row">
+        <div class="col-xs-6 end-xs">
+            <p>Cantidad Reserva: </p>
+        </div>
+        <div class="col-xs-6 start-xs">
+            <p>{{ cantidad }}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-6 end-xs">
+            <p>Presentación: </p>
+        </div>
+        <div class="col-xs-6 start-xs">
+            <p>{{ medicamento.id_tipo_med.nombre_tipo_med | upper }}</p>
+        </div>
+    </div>
+    <div class="row">
+        <button type="button">
+            <a href="{% url 'entrega-medicamento' id_receta %}">Volver</a>
+        </button>
+    </div>
+</div>
+{% elif numero_resultado == 4 %}
+<div>
+<br>
+<div class="col-xs-12 center-xs">
+    <h3>{{ mensaje }}</h3>
+</div>
+{% for reserva in reserva %}
+<div class="col-xs-12 center-xs">
+    <p>Fecha Reserva: {{ reserva.fecha_reserva }}</p>
+</div>
+<div class="col-xs-12 center-xs">
+    <p>Cantidad Reservada: {{ reserva.cantidad }}</p>
+</div>
+{% endfor %}
+</div>
 {% endif %}
 {% endblock %}

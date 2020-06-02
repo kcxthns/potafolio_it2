@@ -255,7 +255,11 @@ class ReservaMedicamento(models.Model):
     codigo = models.ForeignKey(DetalleReceta, models.DO_NOTHING, db_column='codigo', related_name='+')
     id_receta = models.ForeignKey(DetalleReceta, models.DO_NOTHING, db_column='id_receta', related_name='+')
     rut_col_farmacia = models.ForeignKey(ColaboradorFarmacia, models.DO_NOTHING, db_column='rut_col_farmacia')
-
+    cantidad = models.BigIntegerField()
+    fecha_reserva = models.DateField()
+    entregado = models.BigIntegerField()
+    stock_disponible = models.BigIntegerField()
+    
     class Meta:
         managed = False
         db_table = 'reserva_medicamento'
@@ -349,7 +353,7 @@ class Usuario(AbstractBaseUser):
     objects = UserManager()
 
     def __str__(self):
-        return self.rut
+        return self.rut.rut
 
     def has_perm(self, perm, obj=None):
         return True

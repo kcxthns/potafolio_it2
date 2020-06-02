@@ -119,6 +119,20 @@
             <p class="tratamientoPermanente">No hay Stock Disponible en Bodega</p>
         </div>
     </div>
+    <div class="row">
+        <div class="col-xs-6 center-xs" > 
+        <form action="#" method="POST">
+            {% csrf_token %}
+                <input type="hidden" name="codigo_medicamento" id="codigo_medicamento"
+                    value="{{ detalle.CODIGO_MED }}">
+                <input type="hidden" name="id_receta" id="id_receta"
+                    value="{{ receta.id_receta }}">
+                <input type="number" id="cantidad_reserva" name="cantidad_reserva" min="1"
+                    placeholder="Unidades a reservar">
+            <button type="submit" name="boton" value="2">RESERVAR</button>
+        </form>
+        </div>
+    </div>
     {% else %}
     <div class="row" id="formulario_entrega">
         <div class="col-xs-12 center-xs">
@@ -130,7 +144,7 @@
                 value="{{ receta.id_receta }}">
                 <input type="number" id="cantidad_entrega" name="cantidad_entrega" min="1">
                 <div class="row center-xs">
-                    <button>ENTREGAR</button>
+                    <button type="submit" name="boton" value="1">ENTREGAR</button>
                 </div>
             </form>
         </div>
@@ -231,6 +245,30 @@
                 <p class="tratamientoPermanente">No hay Stock Disponible en Bodega</p>
             </div>
         </div>
+        <div class="row">
+            <div class="col-xs-6 center-xs" > 
+            <form action="#" method="POST">
+                {% csrf_token %}
+                    <input type="hidden" name="codigo_medicamento" id="codigo_medicamento"
+                        value="{{ detalle.CODIGO_MED }}">
+                    <input type="hidden" name="id_receta" id="id_receta"
+                        value="{{ receta.id_receta }}">
+                    <input type="number" id="cantidad_reserva" name="cantidad_reserva" min="1"
+                        placeholder="Unidades a reservar">
+                <button type="submit" name="boton" value="2">RESERVAR</button>
+            </form>
+            </div>
+            <div class="col-xs-6 center-xs">
+                <form action="#" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="codigo_medicamento" id="codigo_medicamento"
+                        value="{{ detalle.CODIGO_MED }}">
+                    <input type="hidden" name="id_receta" id="id_receta"
+                        value="{{ receta.id_receta }}">
+                    <button type="submit" name="boton" value="3">Adquirir Particular</button>
+                </form>
+            </div>
+        </div>
         {% else %}
         <div class="cardListar">
             <div class="row">
@@ -250,7 +288,7 @@
                         value="{{ detalle.ID_RECETA }}">
                     <input type="number" id="cantidad_entrega" name="cantidad_entrega" min="1">
                     <div class="row center-xs">
-                    <button>ENTREGAR</button>
+                    <button type="submit" name="boton" value="1">ENTREGAR</button>
                     </div>
                 </form>
             </div>

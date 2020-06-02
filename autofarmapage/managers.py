@@ -5,8 +5,8 @@ from django.contrib.auth.models import BaseUserManager
 class UserManager(BaseUserManager):
     def create_user(self, rut, tipo_empleado=None ,password=None, is_active=True, is_staff=False, is_admin=False):
         from .models import Persona, TipoEmpleado
-        
-        password = self.crear_contrasenna(rut)
+        if password is None:
+            password = self.crear_contrasenna(rut)
         if not rut:
             raise ValueError("Usuario debe tener un rut")
         if not password:
@@ -39,6 +39,7 @@ class UserManager(BaseUserManager):
     def create_superuser(self, rut, password):
         user_obj = self.create_user(
             rut,
+            tipo_empleado=3,
             password=password,
             is_active=True,
             is_staff=True,

@@ -7,7 +7,7 @@ from .models import Region, Comuna, CentroSalud, TipoEmpleado, Persona
 from .connbd import ConexionBD
 import cx_Oracle
 from autofarmapage.forms import EditarForm
-from autofarmapage.models import Caducado, Componente, DetalleReceta, EntregaMedicamento, Medicamento, MedidaComponente, MedidaTiempo, Receta, RegistroInformes, StockMedicamento, TipoComponente, TipoMedicamento, TipoTratamiento, TutorPaciente, Usuario
+from autofarmapage.models import Caducado, Componente, DetalleReceta, EntregaMedicamento, Medicamento, MedidaComponente, MedidaTiempo, Receta, RegistroInformes, ReservaMedicamento, StockMedicamento, TipoComponente, TipoMedicamento, TipoTratamiento, TutorPaciente, Usuario
 from django.contrib import messages
 from autofarmapage.managers import UserManager
 from django.core.mail import send_mail
@@ -540,7 +540,7 @@ def entregaMedicamento(request, id_receta):
     con = bd.conectar()
     cursor = con.cursor()
     medicPermanente = cursor.callfunc("pkg_farmacia.fn_permanente_entrega", int, [id_receta])
-    print(medicPermanente)
+    #print(medicPermanente)
     if medicPermanente == 1:
         bd = ConexionBD()
         con = bd.conectar()
@@ -637,23 +637,38 @@ def entregaMedicamento(request, id_receta):
             'receta' : receta,
         }
     if request.method == 'POST':
-        cantidadEntrega = request.POST['cantidad_entrega']
+        opcForm = int(request.POST['boton'])
         codMed = request.POST['codigo_medicamento']
-        bd = ConexionBD()
-        con = bd.conectar()
-        cursor = con.cursor()
-        #existeStock = cursor.var(bool)
-        existeStock = cursor.callfunc('pkg_farmacia.fn_stock_suficiente', bool, [codMed, request.user.rut.id_centro.id_centro, cantidadEntrega])
-        print(existeStock)
-        if existeStock:
+        if opcForm == 1:
+            cantidadEntrega = request.POST['cantidad_entrega']
+            bd = ConexionBD()
+            con = bd.conectar()
+            cursor = con.cursor()
+            #existeStock = cursor.var(bool)
+            existeStock = cursor.callfunc('pkg_farmacia.fn_stock_suficiente', bool, [codMed, request.user.rut.id_centro.id_centro, cantidadEntrega])
+            print(existeStock)
+            if existeStock:
+                resultado = cursor.var(int)
+                cursor.callproc('pkg_farmacia.sp_entregar_medicamento', [cantidadEntrega, codMed, id_receta, request.user.rut.rut, resultado])
+                print(resultado.getvalue())
+                if resultado.getvalue() == 1:
+                    return redirect('resultado-entrega', id_receta = id_receta, codigo_med=codMed, cantidad=cantidadEntrega, numMensaje=1)
+                elif resultado.getvalue() == 2:
+                    return redirect('resultado-entrega', id_receta = id_receta, codigo_med=0, cantidad=0, numMensaje=2)
+                else:
+                    return redirect('resultado-entrega', id_receta = id_receta, codigo_med=0, cantidad=0, numMensaje=0)
+        if opcForm == 2:
+            cantidadReserva = request.POST['cantidad_reserva']
+            bd = ConexionBD()
+            con = bd.conectar()
+            cursor = con.cursor()
             resultado = cursor.var(int)
-            cursor.callproc('pkg_farmacia.sp_entregar_medicamento', [cantidadEntrega, codMed, id_receta, request.user.rut.rut, resultado])
-            print(resultado.getvalue())
+            cursor.callproc('pkg_farmacia.sp_crear_reserva_medicamento', [codMed, id_receta, request.user.rut.rut, cantidadReserva, resultado])
             if resultado.getvalue() == 1:
-                return redirect('resultado-entrega', id_receta = id_receta, codigo_med=codMed, cantidad=cantidadEntrega, numMensaje=1)
-            elif resultado.getvalue() == 2:
-                return redirect('resultado-entrega', id_receta = id_receta, codigo_med=0, cantidad=0, numMensaje=2)
-            else:
+                return redirect('resultado-entrega', id_receta=id_receta, codigo_med=codMed, cantidad=cantidadReserva, numMensaje=3)
+            if resultado.getvalue() == 2:
+                return redirect('resultado-entrega', id_receta=id_receta, codigo_med=codMed, cantidad=0, numMensaje=4)
+            if resultado.getvalue() == 0:
                 return redirect('resultado-entrega', id_receta = id_receta, codigo_med=0, cantidad=0, numMensaje=0)
     return render(request, 'autofarmapage/farmacia/entrega_medicamento.html', datos)
 
@@ -677,6 +692,24 @@ def entregaResultado(request, id_receta, codigo_med, cantidad, numMensaje):
     elif numMensaje == 2:
         mensaje = 'No hay suficiente Stock disponible en Bodega.'
         datos = {'mensaje' : mensaje, 'numero_mensaje' : numMensaje}
+    elif numMensaje == 3:
+        medicamento = Medicamento.objects.get(codigo=codigo_med)
+        mensaje = 'Reserva del Medicamento ' + medicamento.nombre_medicamento + ' realizada.'
+        datos = {
+            'numero_mensaje' : numMensaje,
+            'mensaje' : mensaje,
+            'cantidad' : cantidad,
+            'medicamento' : medicamento,
+            'id_receta' : id_receta,
+        }
+    elif numMensaje == 4:
+        reserva = ReservaMedicamento.objects.filter(id_receta=id_receta).filter(codigo=codigo_med)
+        mensaje = 'Ya existe una reserva registrada en el sistema.'
+        datos = {
+            'mensaje' : mensaje,
+            'reserva' : reserva,
+            'numero_mensaje' : numMensaje
+        }
     return render(request, 'autofarmapage/farmacia/entrega_resultado.html', datos)
 
 #################
