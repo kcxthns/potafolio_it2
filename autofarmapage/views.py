@@ -16,7 +16,7 @@ from .validacion import Validador
 from datetime import datetime
 #import rest_framework
 from rest_framework import viewsets
-from .serializers import RecetaSerializer
+from .serializers import RecetaSerializer, PersonaSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
@@ -967,6 +967,13 @@ class ApiRecetaListView(generics.ListAPIView):
     filter_backends = (SearchFilter, OrderingFilter)
     pagination_class = PageNumberPagination
     search_fields = ('id_receta', 'rut_paciente__rut')
+
+class ApiUsuario(generics.ListAPIView):
+    queryset = Persona.objects.all()
+    serializer_class =   PersonaSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('rut',)
 
 # este es la forma con el form de django en el html la vista
 # de html que deben usar es la llamada editarpage
