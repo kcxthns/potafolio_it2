@@ -760,11 +760,17 @@ def crearreceta(request):
             for i in persona:
                 if i.rut == rut:
                     nombrePaciente = i.nombres + " " + i.apellido_paterno + " " + i.apellido_materno
-                    rutpat = i.rut 
+                    rutpat = i.rut+'-'+i.dv
                     messages.success(request, 'Paciente encontrado')
     elif request.method == 'POST':
         rut_medico = request.POST['rutmedico']
+        rut_medico = rut_medico.replace('-','')
+        rut_medico = rut_medico[0: len(rut_medico) - 1]
         rutpaciente = request.POST['pacienterut']
+        rutpaciente = rutpaciente.replace('-', '')
+        rutpaciente = rutpaciente[0: len(rutpaciente) - 1]
+        print(rutpaciente)
+        print(rut_medico)    
         fecha = datetime.now()
         #rut paciente#
         # conexión a la bd
@@ -909,11 +915,14 @@ def agregarTutor(request, rut):
             persona = Persona.objects.all()
             for i in persona:
                 if i.rut == campoBuscar:
-                    ruttutor = i.rut + ' - ' + i.dv
+                    ruttutor = i.rut + '-' + i.dv
                     nombreTutor = i.nombres + " " + i.apellido_paterno + " " + i.apellido_materno
                     messages.success(request, 'Tutor encontrado en el sistema')
     elif request.method == 'POST':
         rutdeltutor = request.POST['rutu']
+        rutdeltutor = rutdeltutor.replace('-', '')
+        rutdeltutor = rutdeltutor[0: len(rutdeltutor) - 2]
+        print(rutdeltutor)
         # conexión a la bd
         bd = ConexionBD()
         con = bd.conectar()
@@ -927,7 +936,7 @@ def agregarTutor(request, rut):
         elif realizado.getvalue() == 0:
             messages.error(
                 request, 'Ocurrió un error :( - Intente ingresando un RUT en el buscador')
-    return render(request, 'autofarmapage/agregar-tutor.html', {'paciente': paciente, 'ruttutor': ruttutor})
+    return render(request, 'autofarmapage/agregar-tutor.html', {'paciente': paciente, 'ruttutor': ruttutor, 'nombreTutor':nombreTutor})
 
 # Vista Listar Recetas (Médico)
 
