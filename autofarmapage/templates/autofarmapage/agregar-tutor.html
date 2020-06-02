@@ -18,11 +18,11 @@
     {% csrf_token %}
     <div class="contenedor-inputs centrado">
 
-      <input class="input-40 campo-buscar" type="text" name="busqueda" required placeholder="Ingrese RUT del tutor" />
+      <input class="input-40 campo-buscar" type="text" name="ruttutor" minlength="7" maxlength="8" required
+        placeholder="RUT tutor sin DV" />
       <button class="b-buscar" formmethod="GET" type="submit" name="submit">
         <i class="fa fa-search fa-lg" style="font-size: 20px; color: #fff;"></i>
       </button>
-
   </form>
 
   <div class="row center-xs input-100-s opcion-mensaje">
@@ -39,11 +39,8 @@
       <button class="b-agregarpaciente" type="button">
         <h4>Registrar tutor</h4>
       </button></a>
-
     {% endif %}
   </div>
-
-
 
   <!-- RUT paciente y tutor -->
   <form class="ruts-conte" method="POST">
@@ -52,13 +49,25 @@
     <div class="row">
       <div class="col-xs-12 center-xs">
 
+        <br>
+        <label for="2">Nombre paciente: </label>
+        <input class="input-40" type="text" name="Nombre paciente"
+          value="{{paciente.nombres}} {{paciente.apellido_paterno}} {{paciente.apellido_materno}}" readonly />
+
+
+        <label>Nombre tutor:</label>
+        <input name="nombretu" value="{{nombreTutor}} " required placeholder="Nombre tutor" readonly />
+
+
+        <h4>Esto de abajo estaba</h4>
+
         <label>RUT paciente:
-          <input name="rutpa" value="{{paciente.rut}}" required placeholder="Rut paciente" /></label>
+          <input name="rutpa" value="{{paciente.rut}} - {{paciente.dv}}" required placeholder="Rut paciente"
+            readonly /></label>
 
         <label>RUT tutor:
-          <input name="rutu" value="{{ruttutor}}" required placeholder="Rut tutor"/></label>
+          <input name="rutu" value="{{ruttutor}} " required placeholder="Rut tutor" readonly />
       </div>
-
     </div>
 
     <div class="row">

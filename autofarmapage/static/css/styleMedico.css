@@ -800,11 +800,39 @@ a:active {
    font-weight: normal;
 }
 
-.subtitulo-receta1 {
-   padding: 4px;
-   margin-bottom: 30px;
-   background: #d5d5d5;
+.cuadro-datos {
+   margin: auto;
+   padding: 20px 0;
+}
+
+.st-datos {
+   margin-left: 5%;
+   color: #666;
+   padding: 20px 0;
+}
+
+.st-datos h4 {
+   padding: 0 10px;
    font-weight: normal;
+}
+
+.checkbox-tutor {
+   display: flex;
+   width: 100%;
+   justify-content: space-evenly;
+   flex-wrap: nowrap;
+   align-items: baseline;
+   /* Para controlar el espacio con lo de abajo*/
+   height: 64px;
+   padding-top: 20px;
+}
+
+.subtitulo-receta1 {
+   padding: 8px;
+   margin-bottom: 30px;
+   font-weight: normal;
+   color: #666;
+   border-bottom: 1px solid #666;
 }
 
 .info-receta2 {
@@ -861,7 +889,6 @@ a:active {
    flex-wrap: wrap;
    justify-content: space-between;
 }
-
 
 .texto-area {
    color: #666;

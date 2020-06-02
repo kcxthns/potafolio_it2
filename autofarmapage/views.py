@@ -61,20 +61,20 @@ def homeadmi(request):
 
 def agregarusuario(request):
     # Querys para poblar los select del formulario de creación de persona
-    #regiones = Region.objects.all()
+    # regiones = Region.objects.all()
     regiones = Region.objects.get(
         id_region=request.user.rut.id_comuna.id_region.id_region)
-    #ciudades = Comuna.objects.all().order_by('nombre_comuna')
+    # ciudades = Comuna.objects.all().order_by('nombre_comuna')
     ciudades = Comuna.objects.get(
         id_comuna=request.user.rut.id_comuna.id_comuna)
-    #centro_salud = CentroSalud.objects.all().order_by('id_comuna')
+    # centro_salud = CentroSalud.objects.all().order_by('id_comuna')
     centro_salud = CentroSalud.objects.get(
         id_centro=request.user.rut.id_centro.id_centro)
     tipo_empleado = TipoEmpleado.objects.all()
 
     if request.method == 'POST':
         rut = request.POST['rut']
-        #dv = request.POST['dv']
+        # dv = request.POST['dv']
         # Formatea el RUT quitando puntos, guión y digito verificador
         rut = rut.replace('.', '')
         rut = rut.replace('-', '')
@@ -484,7 +484,7 @@ def listarMedicamento(request):
                             cod_centro, cod_medicamento, stock_add, realizado])
 
             # print(realizado.getvalue())
-            #medicamentos = Medicamento.objects.all()
+            # medicamentos = Medicamento.objects.all()
         stock = StockMedicamento.objects.filter(
             id_centro=request.user.rut.id_centro.id_centro).order_by('codigo')
         paginador = Paginator(stock, 10)
@@ -644,7 +644,7 @@ def entregaMedicamento(request, id_receta):
         bd = ConexionBD()
         con = bd.conectar()
         cursor = con.cursor()
-        #existeStock = cursor.var(bool)
+        # existeStock = cursor.var(bool)
         existeStock = cursor.callfunc('pkg_farmacia.fn_stock_suficiente', bool, [
                                       codMed, request.user.rut.id_centro.id_centro, cantidadEntrega])
         if existeStock:
@@ -697,12 +697,12 @@ def agregarpaciente(request):
         rut = rut.replace('-', '')
         dv = rut[-1]
         rut = rut[0: len(rut) - 1]
-        #dv = request.POST['dv']
-        #validador = Validador()
+        # dv = request.POST['dv']
+        # validador = Validador()
         # if validador.validarRut(rut, dv) == False:
         # messages.error(request, "El rut " + rut +
         # "- " + dv + " no es válido")
-        #rut = request.POST['rut']
+        # rut = request.POST['rut']
         nombres = request.POST['nombres']
         app_paterno = request.POST['apellido_paterno']
         app_materno = request.POST['apellido_materno']
@@ -760,11 +760,11 @@ def crearreceta(request):
             for i in persona:
                 if i.rut == rut:
                     nombrePaciente = i.nombres + " " + i.apellido_paterno + " " + i.apellido_materno
-                    rutpat = i.rut
+                    rutpat = i.rut + '-' + i.dv
                     messages.success(request, 'Paciente encontrado')
     elif request.method == 'POST':
         rut_medico = request.POST['rutmedico']
-        rutpatiente = request.POST['pacienterut']
+        rutpaciente = request.POST['pacienterut']
         fecha = datetime.now()
         #rut paciente#
         # conexión a la bd
@@ -774,7 +774,7 @@ def crearreceta(request):
         realizado = cursor.var(int)
         retorno = cursor.var(int)
         cursor.callproc('pkg_administrar_receta.sp_nueva_receta', [
-                        rut_medico, fecha, rutpatiente, realizado, retorno])
+                        rut_medico, fecha, rutpaciente, realizado, retorno])
         id_receta = retorno.getvalue()
         if int(realizado.getvalue()) == 1:
             return redirect('crear-receta2', id_receta)
@@ -817,7 +817,7 @@ def crearreceta2(request, id_receta):
         duracion = request.POST['duracion']
         dosis = request.POST['dosis']
         tipotratamiento = request.POST['tipo_tratamiento']
-        #idreceta = request.POST['idreceta']
+        # idreceta = request.POST['idreceta']
         codigo = request.POST['medicamentoadd']
         idMedTiempo = request.POST['medida_tiempo']
         bd = ConexionBD()
@@ -896,16 +896,18 @@ def registrartutor(request):
 
 
 def agregarTutor(request, rut):
-    paciente = Persona.objects.get(rut=rut)
+    paciente = Persona.objects.get(rut=rut[0: len(rut) - 2])
     ruttutor = None
+    nombreTutor = None
     if request.method == 'GET':
-        campoBuscar = request.GET.get("busqueda")
+        campoBuscar = request.GET.get("ruttutor")
         if campoBuscar is not None:
             persona = Persona.objects.all()
             for i in persona:
                 if i.rut == campoBuscar:
-                    ruttutor = i.rut
-                    messages.success(request, 'tutor encontrado')
+                    ruttutor = i.rut + ' - ' + i.dv
+                    nombreTutor = i.nombres + " " + i.apellido_paterno + " " + i.apellido_materno
+                    messages.success(request, 'Tutor encontrado en el sistema')
     elif request.method == 'POST':
         rutdeltutor = request.POST['rutu']
         # conexión a la bd
@@ -920,7 +922,7 @@ def agregarTutor(request, rut):
             return redirect('crear-receta')
         elif realizado.getvalue() == 0:
             messages.error(
-                request, 'Ocurrió un error :( - Intente ingresando un rut en el buscador')
+                request, 'Ocurrió un error :( - Intente ingresando un RUT en el buscador')
     return render(request, 'autofarmapage/agregar-tutor.html', {'paciente': paciente, 'ruttutor': ruttutor})
 
 # Vista Listar Recetas (Médico)
@@ -956,8 +958,8 @@ def verReceta2(request, id_receta):
 
 # este es la forma con el form de django en el html la vista
 # de html que deben usar es la llamada editarpage
-    #persona = get_object_or_404(Persona, rut=rut)
-    #persona = Persona.objects.get(rut=rut)
+    # persona = get_object_or_404(Persona, rut=rut)
+    # persona = Persona.objects.get(rut=rut)
     # if request.method == 'GET':
     #    form = RegistrarForm(instance=persona)
     # else:
@@ -972,8 +974,8 @@ def verReceta2(request, id_receta):
     conn = bd.conectar()
     cursor = conn.cursor()
    # cursor.execute("select * from persona where rut = 17808528")
-    #res = cursor.fetchall()
-    #for row in res:
+    # res = cursor.fetchall()
+    # for row in res:
      #   print(row)"""
     """cursor.prepare("select * from persona where rut = :id") 
     cursor.execute(None, id = 15075070)

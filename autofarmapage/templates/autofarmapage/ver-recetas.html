@@ -15,8 +15,8 @@
     <!--CAMPO BUSCAR-->
     <form id="formulario-ver-receta" method="GET">
 
-        <input class="ancho-30" type="search" name="q" value="{{ request.GET.q}}" required
-            placeholder="Buscar por RUT paciente" />
+        <input class="ancho-30" type="search" name="q" value="{{ request.GET.q}}" minlength="7" maxlength="8" required
+            required placeholder="Buscar por RUT paciente" />
 
         <select class="input-20-ver" name="medida_tiempo" id="medida_tiempo">
             <option value="" selected> Filtar por</option>
