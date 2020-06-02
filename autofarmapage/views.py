@@ -760,7 +760,7 @@ def crearreceta(request):
             for i in persona:
                 if i.rut == rut:
                     nombrePaciente = i.nombres + " " + i.apellido_paterno + " " + i.apellido_materno
-                    rutpat = i.rut + '-' + i.dv
+                    rutpat = i.rut 
                     messages.success(request, 'Paciente encontrado')
     elif request.method == 'POST':
         rut_medico = request.POST['rutmedico']
@@ -781,6 +781,10 @@ def crearreceta(request):
         elif int(realizado.getvalue()) == 0:
             messages.error(request, 'HA OCURRIDO UN ERROR :(')
     return render(request, 'autofarmapage/crear-receta.html', {'nombrePaciente': nombrePaciente, 'rutpat': rutpat})
+
+
+
+    
 
 # Crear Receta Paso 2: Guardado en Tabla Detalle_Receta
 
