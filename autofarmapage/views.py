@@ -841,16 +841,14 @@ def crearreceta2(request, id_receta):
 # Vista Ver Receta (Visualizar la receta recién prescrita)
 
 
-def verReceta(request):
- #   receta = Receta.objects.get(
- #       id_receta=request.user.rut.id_receta['id_receta'])
- #   detallereceta = DetalleReceta.objects.filter(id_receta=receta.id_receta)
- #   data = {
- #       'receta': receta,
- #       'detallereceta': detallereceta
- #   }
- #   return render(request, 'autofarmapage/ver-receta.html', data)
-    return render(request, 'autofarmapage/ver-receta.html', {})
+def verReceta(request, id_receta):
+    receta = Receta.objects.get(id_receta=id_receta)
+    detallereceta = DetalleReceta.objects.filter(id_receta=id_receta)
+    data = {
+        'receta': receta,
+        'detallereceta': detallereceta
+        }
+    return render(request, 'autofarmapage/ver-receta.html', data)
 
 # Vista Registrar Tutor (Se Registra una nueva Persona y Usuario) (Médico)
 

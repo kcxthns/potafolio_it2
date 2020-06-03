@@ -225,7 +225,7 @@
                         </button>
 
                         <button class="btn b-receta">
-                            <a href="{% url 'ver-receta' %}" target="popup"
+                            <a href="{% url 'ver-receta' recetapk.id_receta %}" target="popup"
                                 onClick="window.open(this.href, this.target, 'toolbar=no , location=no ,scrollbars=yes, status=no , menubar=no , resizable=1 ,left=250pt,width=740px,height=760'); return false;">
                                 <h4>VER RECETA <i class="fas fa-file-prescription fa-lg"></i></h4>
                             </a>

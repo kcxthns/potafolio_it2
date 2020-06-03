@@ -46,7 +46,7 @@ urlpatterns = [
     path('agregar-tutor/<slug:rut>', views.agregarTutor, name='agregar-tutor'),
     path('ver-recetas', views.verRecetas, name="ver-recetas"),
     path('ver-receta2/<int:id_receta>', views.verReceta2, name='ver-receta2'),
-    path('ver-receta', views.verReceta, name='ver-receta'),
+    path('ver-receta/<int:id_receta>', views.verReceta, name='ver-receta'),
 
     # urls modificaciones contraseña
     path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(
