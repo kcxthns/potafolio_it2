@@ -1172,14 +1172,14 @@ a:active {
 /*------ VER RECETA recién prescrita para imprimir ---------*/
 
 .receta-prescrita {
-   width: 720px;
-   height: 860px;
+   /*width: 720px;
+   height: 860px;*/
    margin: auto;
 }
 
 .receta-contenido {
-   max-width: 720px;
-   min-width: 600px;
+   /*max-width: 720px;
+   min-width: 600px;*/
    margin: auto;
    height: 100%;
    background-color: #fff;
