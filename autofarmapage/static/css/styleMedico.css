@@ -558,7 +558,7 @@ input[type="submit"] {
 .b-continuar {
    align-items: center;
    text-align: center;
-
+   margin-bottom: 40px;
 }
 
 /*------------ 5 Crear receta ------------ */
@@ -978,7 +978,42 @@ a:active {
 }
 
 .botones-r2 {
-   padding-bottom: 20px;
+   max-width: 860px;
+   padding-bottom: 30px;
+   justify-content: space-evenly;
+   margin: auto;
+}
+
+/*------ AGREGAR TUTOR ---------*/
+
+.contenido2 {
+   width: 1200px;
+   margin: auto;
+}
+
+.form-agregar-tutor {
+   width: 100%;
+   margin: auto;
+}
+
+.cuadro-datos2 {
+   margin: auto;
+   padding: 20px 0;
+}
+
+.st-datos2 {
+   margin-left: 5%;
+   color: #666;
+   padding: 20px 0;
+}
+
+.st-datos2 h4 {
+   padding: 0 10px;
+   font-weight: normal;
+}
+
+.b-agregar {
+   margin-bottom: 30px;
 }
 
 /*------ENTREGA MEDICAMENTOS---------*/
@@ -1132,4 +1167,129 @@ a:active {
 .receta-firma {
    width: 50%;
    border-top: 1px solid #000;
+}
+
+/*------ VER RECETA recién prescrita para imprimir ---------*/
+
+.receta-prescrita {
+   width: 720px;
+   height: 860px;
+   margin: auto;
+}
+
+.receta-contenido {
+   max-width: 720px;
+   min-width: 600px;
+   margin: auto;
+   height: 100%;
+   background-color: #fff;
+}
+
+.receta-cabecera {
+   display: -webkit-flex;
+   display: -moz-flex;
+   display: -ms-flex;
+   display: -o-flex;
+   display: flex;
+   width: 100%;
+   padding: 5% 0;
+   align-items: center;
+}
+
+.receta-logo1 {
+   width: 45%;
+   padding-left: 5%;
+   margin: 10px;
+}
+
+.receta-medico1 {
+   width: 55%;
+   padding-left: 10%;
+   margin: 10px;
+}
+
+.nombre-medico1 {
+   color: #1290cb;
+   font-weight: normal;
+   font-size: 16px;
+}
+
+.receta-paciente1 {
+   display: -webkit-flex;
+   display: -moz-flex;
+   display: -ms-flex;
+   display: -o-flex;
+   display: flex;
+   width: 90%;
+   text-align: center;
+   padding-top: 10px;
+   padding-bottom: 15px;
+   margin: auto;
+}
+
+.n-paciente1 {
+   width: 65%;
+   margin-left: 3%;
+   text-align: left;
+}
+
+.r-paciente1 {
+   width: 35%;
+   margin-left: 2%;
+   text-align: left;
+}
+
+.receta-detalle1 {
+   width: 80%;
+   color: #666;
+   padding-top: 20px;
+   padding-bottom: 30px;
+   margin: auto;
+   height: 69%;
+}
+
+.receta-detalle1 h4 {
+   text-align: center;
+}
+
+.receta {
+   padding-top: 20px;
+}
+
+.receta-remedios {
+   padding: 3px 0;
+   width: 88%;
+   margin: auto;
+   text-align: left;
+   margin-bottom: 6px;
+   font-size: 15px;
+   font-weight: lighter;
+   color: #000;
+   list-style: none;
+}
+
+.receta-pie {
+   width: 80%;
+   margin: auto;
+   display: -webkit-flex;
+   display: -moz-flex;
+   display: -ms-flex;
+   display: -o-flex;
+   display: flex;
+}
+
+.receta-fecha1 {
+   width: 45%;
+   text-align: center;
+}
+
+.receta-firma1 {
+   width: 55%;
+   text-align: center;
+}
+
+.receta-firma1 h4 {
+   width: 70%;
+   border-top: 1px solid #000;
+   margin: auto;
 }

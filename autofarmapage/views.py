@@ -764,13 +764,13 @@ def crearreceta(request):
                     messages.success(request, 'Paciente encontrado')
     elif request.method == 'POST':
         rut_medico = request.POST['rutmedico']
-        rut_medico = rut_medico.replace('-','')
+        rut_medico = rut_medico.replace('-', '')
         rut_medico = rut_medico[0: len(rut_medico) - 1]
         rutpaciente = request.POST['pacienterut']
         rutpaciente = rutpaciente.replace('-', '')
         rutpaciente = rutpaciente[0: len(rutpaciente) - 1]
         print(rutpaciente)
-        print(rut_medico)    
+        print(rut_medico)
         fecha = datetime.now()
         #rut paciente#
         # conexión a la bd
@@ -785,12 +785,8 @@ def crearreceta(request):
         if int(realizado.getvalue()) == 1:
             return redirect('crear-receta2', id_receta)
         elif int(realizado.getvalue()) == 0:
-            messages.error(request, 'HA OCURRIDO UN ERROR :(')
+            messages.error(request, 'Se ha producido un error')
     return render(request, 'autofarmapage/crear-receta.html', {'nombrePaciente': nombrePaciente, 'rutpat': rutpat})
-
-
-
-    
 
 # Crear Receta Paso 2: Guardado en Tabla Detalle_Receta
 
@@ -841,6 +837,20 @@ def crearreceta2(request, id_receta):
         elif realizado.getvalue() == 0:
             messages.success(request, "Complete todos los campos")
     return render(request, 'autofarmapage/crear-receta2.html', data5)
+
+# Vista Ver Receta (Visualizar la receta recién prescrita)
+
+
+def verReceta(request):
+ #   receta = Receta.objects.get(
+ #       id_receta=request.user.rut.id_receta['id_receta'])
+ #   detallereceta = DetalleReceta.objects.filter(id_receta=receta.id_receta)
+ #   data = {
+ #       'receta': receta,
+ #       'detallereceta': detallereceta
+ #   }
+ #   return render(request, 'autofarmapage/ver-receta.html', data)
+    return render(request, 'autofarmapage/ver-receta.html', {})
 
 # Vista Registrar Tutor (Se Registra una nueva Persona y Usuario) (Médico)
 
@@ -936,7 +946,7 @@ def agregarTutor(request, rut):
         elif realizado.getvalue() == 0:
             messages.error(
                 request, 'Ocurrió un error :( - Intente ingresando un RUT en el buscador')
-    return render(request, 'autofarmapage/agregar-tutor.html', {'paciente': paciente, 'ruttutor': ruttutor, 'nombreTutor':nombreTutor})
+    return render(request, 'autofarmapage/agregar-tutor.html', {'paciente': paciente, 'ruttutor': ruttutor, 'nombreTutor': nombreTutor})
 
 # Vista Listar Recetas (Médico)
 
