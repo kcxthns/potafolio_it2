@@ -761,7 +761,8 @@ def crearreceta(request):
                 if i.rut == rut:
                     nombrePaciente = i.nombres + " " + i.apellido_paterno + " " + i.apellido_materno
                     rutpat = i.rut+'-'+i.dv
-                    messages.success(request, 'Paciente encontrado')
+                    messages.success(
+                        request, 'Paciente encontrado satisfactoriamente.')
     elif request.method == 'POST':
         rut_medico = request.POST['rutmedico']
         rut_medico = rut_medico.replace('-', '')
@@ -785,7 +786,7 @@ def crearreceta(request):
         if int(realizado.getvalue()) == 1:
             return redirect('crear-receta2', id_receta)
         elif int(realizado.getvalue()) == 0:
-            messages.error(request, 'Se ha producido un error')
+            messages.error(request, 'Debe agregar un RUT de busqueda')
     return render(request, 'autofarmapage/crear-receta.html', {'nombrePaciente': nombrePaciente, 'rutpat': rutpat})
 
 # Crear Receta Paso 2: Guardado en Tabla Detalle_Receta
@@ -847,7 +848,7 @@ def verReceta(request, id_receta):
     data = {
         'receta': receta,
         'detallereceta': detallereceta
-        }
+    }
     return render(request, 'autofarmapage/ver-receta.html', data)
 
 # Vista Registrar Tutor (Se Registra una nueva Persona y Usuario) (Médico)

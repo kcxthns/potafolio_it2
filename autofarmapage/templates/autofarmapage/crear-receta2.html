@@ -120,8 +120,9 @@
                                                 <tr>
                                                     <th>Nombre medicamento</th>
                                                     <th>Tipo</th>
-                                                    <th>Stock</th>
-                                                    <th></th>
+                                                    <th>Laboratorio</th>
+                                                    <!--<th>Stock</th>-->
+                                                    <th>Agregar</th>
                                                 </tr>
                                             </thead>
                                             {% if remedios%}
@@ -129,7 +130,8 @@
                                             <tr class="listar" id="{{n.codigo}}">
                                                 <td>{{n.nombre_medicamento}}</td>
                                                 <td>{{n.id_tipo_med.nombre_tipo_med}}</td>
-                                                <td></td>
+                                                <td>{{n.fabricante}}</td>
+                                                <!--<td>{{n.stock}}</td>-->
                                                 <td>
                                                     <button class="btn-x" type="button" id="add">
                                                         <i class="fa fa-plus fa-lg"> </i>
@@ -220,10 +222,11 @@
                         {%endif%}
                     </div>
                     <div class="botones botones-r2">
-                        <button class="btn b-guardar">
+                        <!--
+                            <button class="btn b-guardar">
                             <h4>Guardar <i class="fa fa-save fa-lg"></i></h4>
                         </button>
-
+                        -->
                         <button class="btn b-receta">
                             <a href="{% url 'ver-receta' recetapk.id_receta %}" target="popup"
                                 onClick="window.open(this.href, this.target, 'toolbar=no , location=no ,scrollbars=yes, status=no , menubar=no , resizable=1 ,left=250pt,width=740px,height=760'); return false;">

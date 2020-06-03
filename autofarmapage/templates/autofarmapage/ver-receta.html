@@ -29,7 +29,7 @@
                     <img src="{% static 'imagenes/LOGO_azul.png' %}" alt="Logopaginablanco" height="40" width="200" />
                 </div>
                 <div class="receta-medico1">
-                    <p>N° de receta: {{receta.id_receta}}</p>
+                    <h4>N° de receta: {{receta.id_receta}}</h4>
                     <p>{{ user.rut.id_centro.nombre_centro }}</p>
                     <h4 class="nombre-medico1">Dr/Dra. {{user.rut.nombres}} {{user.rut.apellido_paterno}}
                         {{user.rut.apellido_materno}}</h4>
@@ -38,7 +38,8 @@
             </div>
             <div class="receta-paciente1">
                 <div class="n-paciente1">
-                    <h4><b>Nombre paciente: </b> 
+                    <h4><b>Nombre paciente: </b>
+                        {{receta.rut_paciente.nombres}}
                         {{receta.rut_paciente.apellido_paterno}}
                         {{receta.rut_paciente.apellido_materno}}
                     </h4>
